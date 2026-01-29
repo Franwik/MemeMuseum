@@ -22,6 +22,10 @@ export function createMemeModel(database) {
     id_caricatore: {
       type: DataTypes.INTEGER,
       references: { model: 'utente', key: 'id' }
+    },
+    titolo: {
+      type: DataTypes.STRING(100),
+      allowNull: false
     }
   }, {
     tableName: 'meme',
