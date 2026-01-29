@@ -20,7 +20,8 @@ CREATE TABLE meme (
     immagine BYTEA NOT NULL, -- Contenuto binario del meme
     formato_file VARCHAR(10), -- Es: 'image/png' o 'image/jpeg'
     data_caricamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    id_caricatore INTEGER REFERENCES utente(id) ON DELETE SET NULL
+    id_caricatore INTEGER REFERENCES utente(id) ON DELETE SET NULL,
+    titolo VARCHAR(100) NOT NULL
 );
 
 ---
