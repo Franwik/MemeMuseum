@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-meme-card',
@@ -8,7 +9,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './meme-card.html'
 })
 export class MemeCardComponent {
-  @Input() imageUrl: string = 'https://via.placeholder.com/400x400?text=Meme';
+  @Input() imageUrl: string | SafeUrl = 'https://via.placeholder.com/400x400?text=Meme';
   @Input() title: string = 'Meme Title';
   @Input() author: string = 'Unknown';
   @Input() upvotes: number = 0;

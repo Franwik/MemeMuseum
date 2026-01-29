@@ -1,4 +1,5 @@
 import { Meme, Tag, Utente } from '../data/remote/Database.js';
+import { sequelize } from '../data/remote/Database.js';
 
 export const uploadMeme = async (req, res) => {
   try {
@@ -98,5 +99,81 @@ export const getAllMemes = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Errore nel recupero dei meme' });
+  }
+};
+
+export const getDailyMeme = async (req, res) => {
+  try {
+    // Prima ottieni tutti i meme con i loro voti
+    const memes = await Meme.findAll({
+      include: [
+        {
+          model: Utente,
+          as: 'autore',
+          attributes: ['id', 'username']
+        }
+      ],
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*) 
+              FROM voto 
+              WHERE voto.id_meme = meme.id 
+              AND voto.tipo_voto = 1
+            )`),
+            'upvotes'
+          ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*) 
+              FROM voto 
+              WHERE voto.id_meme = meme.id 
+              AND voto.tipo_voto = -1
+            )`),
+            'downvotes'
+          ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*) 
+              FROM voto 
+              WHERE voto.id_meme = meme.id 
+              AND voto.tipo_voto = 1
+            ) - (
+              SELECT COUNT(*) 
+              FROM voto 
+              WHERE voto.id_meme = meme.id 
+              AND voto.tipo_voto = -1
+            )`),
+            'score'
+          ]
+        ]
+      },
+      order: [[sequelize.literal('score'), 'DESC']],
+      limit: 1
+    });
+
+    if (!memes || memes.length === 0) {
+      return res.status(404).json({ error: 'Nessun meme trovato' });
+    }
+
+    const meme = memes[0];
+
+    return res.status(200).json({
+      id: meme.id,
+      titolo: meme.titolo,
+      formato_file: meme.formato_file,
+      immagine: `data:${meme.formato_file};base64,${meme.immagine.toString('base64')}`,
+      autore: {
+        id: meme.autore.id,
+        username: meme.autore.username
+      },
+      upvotes: parseInt(meme.get('upvotes')) || 0,
+      downvotes: parseInt(meme.get('downvotes')) || 0
+    });
+
+  } catch (error) {
+    console.error('Errore getDailyMeme:', error);
+    return res.status(500).json({ error: 'Errore nel recupero del meme del giorno' });
   }
 };
