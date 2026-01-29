@@ -1,0 +1,58 @@
+services:
+  backend:
+    build: ./backend
+    container_name: meme-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://user:password@database:5432/mememuseum
+    depends_on:
+      - database
+    networks:
+      - meme-network
+
+  frontend:
+    build: ./frontend
+    container_name: meme-frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    networks:
+      - meme-network
+    command: npm start -- --host 0.0.0.0
+
+  database:
+    image: postgres:15-alpine
+    container_name: meme-database
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mememuseum
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - meme-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: meme-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mememuseum.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - database
+    networks:
+      - meme-network
+
+volumes:
+  postgres_data:
+
+networks:
+  meme-network:
+    driver: bridge
