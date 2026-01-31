@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-topbar',
@@ -9,6 +10,14 @@ import { CommonModule } from '@angular/common';
 })
 
 export class TopbarComponent implements OnInit {
+
+  constructor(
+    private router: Router
+  ) {}
+
+  onHome() {
+    this.router.navigate(['/home']);
+  }
 
   ngOnInit(): void {
     // Imposta il tema scuro fisso

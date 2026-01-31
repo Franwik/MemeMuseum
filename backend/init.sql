@@ -21,7 +21,9 @@ CREATE TABLE meme (
     formato_file VARCHAR(10), -- Es: 'image/png' o 'image/jpeg'
     data_caricamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_caricatore INTEGER REFERENCES utente(id) ON DELETE SET NULL,
-    titolo VARCHAR(100) NOT NULL
+    titolo VARCHAR(100) NOT NULL,
+    count_upvotes INTEGER DEFAULT 0,
+    count_downvotes INTEGER DEFAULT 0
 );
 
 ---
@@ -65,3 +67,30 @@ CREATE TABLE commento (
 ---
 CREATE INDEX idx_meme_data ON meme(data_caricamento DESC);
 CREATE INDEX idx_tag_nome ON tag(nome);
+
+
+-- Funzione che aggiorna i contatori nel meme quando cambia la tabella voto
+CREATE OR REPLACE FUNCTION update_meme_vote_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'INSERT') THEN
+        IF (NEW.tipo_voto = 1) THEN
+            UPDATE meme SET count_upvotes = count_upvotes + 1 WHERE id = NEW.id_meme;
+        ELSE
+            UPDATE meme SET count_downvotes = count_downvotes + 1 WHERE id = NEW.id_meme;
+        END IF;
+    ELSIF (TG_OP = 'DELETE') THEN
+        IF (OLD.tipo_voto = 1) THEN
+            UPDATE meme SET count_upvotes = count_upvotes - 1 WHERE id = OLD.id_meme;
+        ELSE
+            UPDATE meme SET count_downvotes = count_downvotes - 1 WHERE id = OLD.id_meme;
+        END IF;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Applica il trigger alla tabella voto
+CREATE TRIGGER trg_update_meme_votes
+AFTER INSERT OR DELETE ON voto
+FOR EACH ROW EXECUTE FUNCTION update_meme_vote_counts();

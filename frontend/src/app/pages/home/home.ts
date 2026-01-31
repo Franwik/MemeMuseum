@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemeCardComponent } from '../../components/meme-card/meme-card';
 import { MemeService } from '../../_services/meme';
+import { SearchBarComponent } from '../../components/search-bar/search-bar';
 
 // Interfaccia per i dati del meme
 interface MemeData {
@@ -18,7 +19,7 @@ interface MemeData {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, MemeCardComponent],
+  imports: [CommonModule, FormsModule, MemeCardComponent, SearchBarComponent],
   templateUrl: './home.html'
 })
 export class HomeComponent implements OnInit {
@@ -54,7 +55,6 @@ export class HomeComponent implements OnInit {
   loadDailyMeme(): void {
   this.memeService.getMemeOfTheDay().subscribe({
     next: (meme) => {
-      console.log('✅ Dati ricevuti dal service:', meme);
       
       const imageUrl = this.getAttachmentUrl(meme.pathRelativo);
       
@@ -67,25 +67,21 @@ export class HomeComponent implements OnInit {
         isDaily: true
       };
       
-      console.log('✨ dailyMeme popolato:', this.dailyMeme);
       this.cdr.detectChanges(); // 3. Forza Angular a controllare i cambiamenti
     },
     error: (err) => {
-      console.error('❌ Errore:', err);
+      console.error('Errore:', err);
     }
   });
 }
 
-  onSearch(): void {
-    if (this.searchQuery.trim()) {
-      console.log('🔍 Ricerca:', this.searchQuery);
-      // Qui puoi navigare alla pagina di ricerca quando la implementerai
-      // this.router.navigate(['/search'], { queryParams: { q: this.searchQuery } });
-    }
+  onSearch(query: string): void {
+    this.router.navigate(['/search'], { 
+      queryParams: { q: query } 
+    });
   }
   
   ngOnInit(): void {
-    console.log('🚀 HomeComponent inizializzato');
     this.loadDailyMeme();
   }
 }

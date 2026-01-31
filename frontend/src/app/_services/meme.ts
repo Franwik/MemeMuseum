@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-interface DailyMeme {
+// Interfaccia per il singolo Meme
+export interface Meme {
   id: number;
   titolo: string;
   formato_file: string;
@@ -18,6 +19,14 @@ interface DailyMeme {
   downvotes: number;
 }
 
+// Nuova interfaccia per la risposta paginata
+export interface SearchResponse {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  memes: Meme[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,8 +35,24 @@ export class MemeService {
 
   constructor(private http: HttpClient) {}
 
-  getMemeOfTheDay(): Observable<DailyMeme> {
-    return this.http.get<DailyMeme>(`${this.apiUrl}/daily`, { withCredentials: true });
+  getMemeOfTheDay(): Observable<Meme> {
+    return this.http.get<Meme>(`${this.apiUrl}/daily`, { withCredentials: true });
   }
 
+  /**
+   * Cerca meme con supporto alla paginazione
+   * @param query La stringa da cercare
+   * @param page Il numero della pagina (default 1)
+   * @param size Quanti elementi per pagina (default 10)
+   */
+  searchMemes(query: string, page: number = 1, size: number = 10): Observable<SearchResponse> {
+    return this.http.get<SearchResponse>(`${this.apiUrl}/search`, {
+      params: { 
+        q: query,
+        page: page.toString(),
+        size: size.toString()
+      },
+      withCredentials: true
+    });
+  }
 }

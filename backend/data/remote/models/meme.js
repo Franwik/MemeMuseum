@@ -26,6 +26,14 @@ export function createMemeModel(database) {
     titolo: {
       type: DataTypes.STRING(100),
       allowNull: false
+    },
+    count_upvotes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    },
+    count_downvotes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     }
   }, {
     tableName: 'meme',

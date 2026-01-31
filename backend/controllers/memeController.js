@@ -1,5 +1,6 @@
 import { Meme, Tag, Utente } from '../data/remote/Database.js';
 import { sequelize } from '../data/remote/Database.js';
+import { Op } from "sequelize";
 
 export const uploadMeme = async (req, res) => {
   try {
@@ -122,5 +123,94 @@ export const getDailyMeme = async (req, res) => {
   } catch (error) {
     console.error('Errore getDailyMeme:', error);
     return res.status(500).json({ error: 'Errore nel recupero del meme del giorno' });
+  }
+};
+
+export const searchMemes = async (req, res) => {
+  try {
+    const { q, page = 1, size = 10 } = req.query;
+    
+    if (!q) {
+      return res.status(400).json({ error: 'Stringa di ricerca mancante' });
+    }
+
+    const limit = parseInt(size);
+    const offset = (parseInt(page) - 1) * limit;
+
+    const { count, rows } = await Meme.findAndCountAll({
+
+      subQuery: false,
+      
+      where: {
+        [Op.or]: [
+          { titolo: { [Op.iLike]: `%${q}%` } },
+          { '$autore.username$': { [Op.iLike]: `%${q}%` } },
+          { '$tags.nome$': { [Op.iLike]: `%${q}%` } }
+        ]
+      },
+      include: [
+        {
+          model: Utente,
+          as: 'autore',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['nome'],
+          through: { attributes: [] }
+        }
+      ],
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*) FROM voto 
+              WHERE voto.id_meme = meme.id AND voto.tipo_voto = 1
+            )`),
+            'upvotes'
+          ],
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*) FROM voto 
+              WHERE voto.id_meme = meme.id AND voto.tipo_voto = -1
+            )`),
+            'downvotes'
+          ]
+        ]
+      },
+      distinct: true, 
+      limit: limit,
+      offset: offset,
+      order: [['data_caricamento', 'DESC']]
+    });
+
+    const formattedMemes = rows.map(meme => ({
+      id: meme.id,
+      titolo: meme.titolo,
+      pathRelativo: meme.pathRelativo,
+      formato_file: meme.formato_file,
+      autore: meme.autore ? {
+        id: meme.autore.id,
+        username: meme.autore.username
+      } : { id: null, username: 'Anonimo' },
+      upvotes: parseInt(meme.get('upvotes')) || 0,
+      downvotes: parseInt(meme.get('downvotes')) || 0,
+      tags: meme.tags ? meme.tags.map(t => t.nome) : []
+    }));
+
+    return res.status(200).json({
+      totalItems: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+      memes: formattedMemes
+    });
+
+  } catch (error) {
+    console.error('--- ERRORE SQL DETTAGLIATO ---', error);
+    return res.status(500).json({ 
+      error: 'Errore durante la ricerca',
+      details: error.message 
+    });
   }
 };

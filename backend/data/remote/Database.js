@@ -50,14 +50,14 @@ Voto.belongsTo(Utente, { foreignKey: "id_utente" });
 export const initDatabase = async () => {
   try {
     await sequelize.authenticate();
-    console.log("✅ Connessione al database stabilita con successo.");
+    console.log("Connessione al database stabilita con successo.");
     
     // NOTA: In produzione non usare { alter: true } o { force: true }
     // Qui sincronizza i modelli con le tabelle esistenti
     await sequelize.sync({ alter: false }); 
-    console.log("✅ Modelli Sequelize sincronizzati.");
+    console.log("Modelli Sequelize sincronizzati.");
   } catch (error) {
-    console.error("❌ Impossibile connettersi al database:", error);
+    console.error("Impossibile connettersi al database:", error);
     process.exit(1);
   }
 };

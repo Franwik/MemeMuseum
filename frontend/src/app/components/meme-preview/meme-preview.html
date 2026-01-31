@@ -1,0 +1,16 @@
+<div (click)="goToDetails()" 
+      class="bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-blue-500/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
+  <div class="relative aspect-video bg-gray-700">
+    <img [src]="imagePath" [alt]="title" class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+      <span class="text-white text-sm font-medium">Vedi Dettagli</span>
+    </div>
+  </div>
+  <div class="p-3">
+    <h3 class="text-white font-medium truncate">{{ title }}</h3>
+    <div class="flex justify-between items-center mt-2">
+      <span class="text-xs text-gray-400">&#64;{{ author }}</span>
+      <span class="text-xs text-green-400 font-bold">+{{ upvotes }}</span>
+    </div>
+  </div>
+</div>
