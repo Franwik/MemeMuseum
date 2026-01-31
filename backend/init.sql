@@ -17,7 +17,7 @@ CREATE TABLE utente (
 ---
 CREATE TABLE meme (
     id SERIAL PRIMARY KEY,
-    immagine BYTEA NOT NULL, -- Contenuto binario del meme
+    pathRelativo VARCHAR(255) NOT NULL,
     formato_file VARCHAR(10), -- Es: 'image/png' o 'image/jpeg'
     data_caricamento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     id_caricatore INTEGER REFERENCES utente(id) ON DELETE SET NULL,

@@ -3,17 +3,15 @@ import { sequelize } from '../data/remote/Database.js';
 
 export const uploadMeme = async (req, res) => {
   try {
-    const {
-      immagine,
-      formato_file,
-      tags,
-      titolo,
-      id_autore
-    } = req.body;
+
+    console.log('📂 File info:', req.file); // DEBUG - guarda il path completo
+    console.log('📂 Current directory:', process.cwd()); // DEBUG
+
+    const { tags, titolo, id_autore } = req.body;
 
     // Validazioni base
-    if (!immagine) {
-      return res.status(400).json({ error: 'Campo "immagine" mancante' });
+    if (!req.file) {
+      return res.status(400).json({ error: 'Nessun file caricato' });
     }
 
     if (!id_autore) {
@@ -24,19 +22,10 @@ export const uploadMeme = async (req, res) => {
       return res.status(400).json({ error: 'Campo "titolo" mancante' });
     }
 
-    // Rimuove il prefisso data:image/...;base64,
-    const base64Data = immagine.replace(/^data:image\/\w+;base64,/, '');
-
-    let bufferImmagine;
-    try {
-      bufferImmagine = Buffer.from(base64Data, 'base64');
-    } catch (err) {
-      return res.status(400).json({ error: 'Immagine Base64 non valida' });
-    }
-
+    // Crea il meme con il path del file caricato
     const nuovoMeme = await Meme.create({
-      immagine: bufferImmagine,
-      formato_file: formato_file || 'image/jpeg',
+      pathRelativo: req.file.path,
+      formato_file: req.file.mimetype,
       titolo: titolo,
       id_caricatore: id_autore
     });
@@ -53,7 +42,8 @@ export const uploadMeme = async (req, res) => {
 
     return res.status(201).json({
       message: 'Meme caricato con successo!',
-      id: nuovoMeme.id
+      id: nuovoMeme.id,
+      path: nuovoMeme.pathRelativo
     });
 
   } catch (error) {

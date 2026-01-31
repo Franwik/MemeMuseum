@@ -4,6 +4,9 @@ services:
     container_name: meme-backend
     ports:
       - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     environment:
       DATABASE_URL: postgresql://user:password@database:5432/mememuseum
     depends_on:

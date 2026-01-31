@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { MemeCardComponent } from '../../components/meme-card/meme-card';
 import { MemeService } from '../../_services/meme';
 
@@ -16,19 +15,11 @@ export class HomeComponent implements OnInit {
   searchQuery: string = '';
 
   // Meme del giorno
-  dailyMeme: {
-    imageUrl: string | SafeUrl;
-    title: string;
-    author: string;
-    upvotes: number;
-    downvotes: number;
-    isDaily: boolean;
-  } | null = null;
+  dailyMeme: MemeCardComponent | null = null;
 
   constructor(
     private router: Router,
-    private memeService: MemeService,
-    private sanitizer: DomSanitizer
+    private memeService: MemeService
   ) {}
 
   loadDailyMeme(): void {
@@ -37,7 +28,7 @@ export class HomeComponent implements OnInit {
       next: (meme) => {
         console.log('Meme ricevuto:', meme);
         this.dailyMeme = {
-          imageUrl: this.sanitizer.bypassSecurityTrustUrl(meme.immagine),
+          imagePath: meme.immagine,
           title: meme.titolo,
           author: meme.autore.username,
           upvotes: meme.upvotes,

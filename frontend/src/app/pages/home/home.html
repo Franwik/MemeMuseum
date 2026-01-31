@@ -39,9 +39,9 @@
 
       <!-- Meme del Giorno -->
       <div class="max-w-2xl mx-auto">
-        <ng-container *ngIf="dailyMeme; else loading">
+        <ng-container *ngIf="dailyMeme">
           <app-meme-card
-            [imageUrl]="dailyMeme.imageUrl"
+            [imagePath]="dailyMeme.imagePath"
             [title]="dailyMeme.title"
             [author]="dailyMeme.author"
             [upvotes]="dailyMeme.upvotes"
@@ -49,11 +49,6 @@
             [isDaily]="dailyMeme.isDaily">
           </app-meme-card>
         </ng-container>
-        <ng-template #loading>
-          <div class="text-center text-gray-400">
-            Caricamento del meme del giorno...
-          </div>
-        </ng-template>
       </div>
     </div>
   </section>

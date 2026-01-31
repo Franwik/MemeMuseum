@@ -7,8 +7,8 @@ export function createMemeModel(database) {
       primaryKey: true,
       autoIncrement: true,
     },
-    immagine: {
-      type: DataTypes.BLOB, // BLOB mappa correttamente il BYTEA di Postgres
+    pathRelativo: {
+      type: DataTypes.STRING,
       allowNull: false
     },
     formato_file: {
