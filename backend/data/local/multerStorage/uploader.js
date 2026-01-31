@@ -8,7 +8,6 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + crypto.randomBytes(8).toString('hex');
     const filename = file.fieldname + '-' + uniqueSuffix + '-' + file.originalname;
-    console.log('📁 Saving file to:', filename);
     cb(null, filename);
   }
 })

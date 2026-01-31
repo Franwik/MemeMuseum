@@ -4,9 +4,6 @@ import { sequelize } from '../data/remote/Database.js';
 export const uploadMeme = async (req, res) => {
   try {
 
-    console.log('📂 File info:', req.file); // DEBUG - guarda il path completo
-    console.log('📂 Current directory:', process.cwd()); // DEBUG
-
     const { tags, titolo, id_autore } = req.body;
 
     // Validazioni base
@@ -49,46 +46,6 @@ export const uploadMeme = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Errore nel caricamento del meme' });
-  }
-};
-
-export const getAllMemes = async (req, res) => {
-  try {
-    const memes = await Meme.findAll({
-      include: [
-        {
-          model: Utente,
-          as: 'autore',
-          attributes: ['id', 'username']
-        },
-        {
-          model: Tag,
-          as: 'tags',
-          attributes: ['nome'],
-          through: { attributes: [] }
-        }
-      ],
-      order: [['data_caricamento', 'DESC']]
-    });
-
-    const risultato = memes.map(meme => ({
-      id: meme.id,
-      titolo: meme.titolo,
-      formato_file: meme.formato_file,
-      autore: {
-        id: meme.autore.id,
-        username: meme.autore.username
-      },
-      tags: meme.tags.map(tag => tag.nome),
-      immagine: `data:${meme.formato_file};base64,${meme.immagine.toString('base64')}`,
-      data_caricamento: meme.data_caricamento
-    }));
-
-    return res.status(200).json(risultato);
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Errore nel recupero dei meme' });
   }
 };
 
@@ -153,7 +110,7 @@ export const getDailyMeme = async (req, res) => {
       id: meme.id,
       titolo: meme.titolo,
       formato_file: meme.formato_file,
-      immagine: `data:${meme.formato_file};base64,${meme.immagine.toString('base64')}`,
+      pathRelativo: meme.pathRelativo,
       autore: {
         id: meme.autore.id,
         username: meme.autore.username

@@ -15,9 +15,10 @@ const PORT = 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// CORS PRIMA DELLE ROUTES!
+// CORS globale - DEVE essere prima di tutte le route
 app.use(cors({
   origin: 'http://localhost:4200',
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));

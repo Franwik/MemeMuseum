@@ -39,6 +39,7 @@
 
       <!-- Meme del Giorno -->
       <div class="max-w-2xl mx-auto">
+        <!-- Mostra il meme quando è caricato -->
         <ng-container *ngIf="dailyMeme">
           <app-meme-card
             [imagePath]="dailyMeme.imagePath"

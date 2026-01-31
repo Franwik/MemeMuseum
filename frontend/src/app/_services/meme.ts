@@ -12,7 +12,7 @@ interface DailyMeme {
     username: string;
   };
   tags: string[];
-  immagine: string;
+  pathRelativo: string;
   data_caricamento: string;
   upvotes: number;
   downvotes: number;
@@ -27,7 +27,7 @@ export class MemeService {
   constructor(private http: HttpClient) {}
 
   getMemeOfTheDay(): Observable<DailyMeme> {
-    return this.http.get<DailyMeme>(`${this.apiUrl}/daily`);
+    return this.http.get<DailyMeme>(`${this.apiUrl}/daily`, { withCredentials: true });
   }
 
 }
