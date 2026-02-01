@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit {
 
   // Usa l'interfaccia corretta invece del componente
   dailyMeme: MemeData | null = null;
+  errorMessage: string | null = null;
   
   constructor(
     private cdr: ChangeDetectorRef,
@@ -53,27 +54,36 @@ export class HomeComponent implements OnInit {
   }
 
   loadDailyMeme(): void {
-  this.memeService.getMemeOfTheDay().subscribe({
-    next: (meme) => {
-      
-      const imageUrl = this.getAttachmentUrl(meme.pathRelativo);
-      
-      this.dailyMeme = {
-        imagePath: imageUrl,
-        title: meme.titolo,
-        author: meme.autore.username,
-        upvotes: meme.upvotes,
-        downvotes: meme.downvotes,
-        isDaily: true
-      };
-      
-      this.cdr.detectChanges(); // 3. Forza Angular a controllare i cambiamenti
-    },
-    error: (err) => {
-      console.error('Errore:', err);
-    }
-  });
-}
+    this.errorMessage = null; // Resetta l'errore all'inizio
+    
+    this.memeService.getMemeOfTheDay().subscribe({
+      next: (meme) => {
+        const imageUrl = this.getAttachmentUrl(meme.pathRelativo);
+        this.dailyMeme = {
+          imagePath: imageUrl,
+          title: meme.titolo,
+          author: meme.autore.username,
+          upvotes: meme.upvotes,
+          downvotes: meme.downvotes,
+          isDaily: true
+        };
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        // Distinguiamo in base allo status code del backend
+        if (err.status === 404) {
+          // Nessun meme trovato: non è un "errore", è solo un risultato vuoto
+          this.dailyMeme = null;
+          this.errorMessage = null;
+        } else {
+          // Errore reale (es. 500 o server offline)
+          this.errorMessage = "Ops! Qualcosa è andato storto nei nostri server.";
+          this.dailyMeme = null;
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   onSearch(query: string): void {
     this.router.navigate(['/search'], { 

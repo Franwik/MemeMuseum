@@ -1,6 +1,6 @@
 import { Meme, Tag, Utente, Voto } from '../data/remote/Database.js';
 import { sequelize } from '../data/remote/Database.js';
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 
 export const uploadMeme = async (req, res) => {
   try {
@@ -70,6 +70,11 @@ export const getDailyMeme = async (req, res) => {
           attributes: ['id', 'username']
         }
       ],
+      where: sequelize.where(
+        sequelize.fn('DATE', sequelize.col('data_caricamento')),
+        Op.eq,
+        sequelize.literal('CURRENT_DATE')
+      ),
       // Ordina per score (upvotes - downvotes) usando le colonne precomputate dal trigger
       order: [[sequelize.literal('count_upvotes - count_downvotes'), 'DESC']],
     });
@@ -99,19 +104,14 @@ export const getDailyMeme = async (req, res) => {
 
 export const searchMemes = async (req, res) => {
   try {
-    const { q, page = 1, size = 10 } = req.query;
+    const { q } = req.query; // Rimosse page e size
     
     if (!q) {
       return res.status(400).json({ error: 'Stringa di ricerca mancante' });
     }
 
-    const limit = parseInt(size);
-    const offset = (parseInt(page) - 1) * limit;
-
-    const { count, rows } = await Meme.findAndCountAll({
-
-      subQuery: false,
-      
+    // Usiamo findAll invece di findAndCountAll
+    const rows = await Meme.findAll({
       where: {
         [Op.or]: [
           { titolo: { [Op.iLike]: `%${q}%` } },
@@ -132,10 +132,7 @@ export const searchMemes = async (req, res) => {
           through: { attributes: [] }
         }
       ],
-      distinct: true, 
-      limit: limit,
-      offset: offset,
-      order: [['data_caricamento', 'DESC']]
+      order: [['data_caricamento', 'DESC']] // Default decrescente
     });
 
     const formattedMemes = rows.map(meme => ({
@@ -143,6 +140,7 @@ export const searchMemes = async (req, res) => {
       titolo: meme.titolo,
       pathRelativo: meme.pathRelativo,
       formato_file: meme.formato_file,
+      data_caricamento: meme.data_caricamento, // Necessario per il sort frontend
       autore: meme.autore ? {
         id: meme.autore.id,
         username: meme.autore.username
@@ -152,19 +150,12 @@ export const searchMemes = async (req, res) => {
       tags: meme.tags ? meme.tags.map(t => t.nome) : []
     }));
 
-    return res.status(200).json({
-      totalItems: count,
-      totalPages: Math.ceil(count / limit),
-      currentPage: parseInt(page),
-      memes: formattedMemes
-    });
+    // Restituiamo direttamente l'array
+    return res.status(200).json(formattedMemes);
 
   } catch (error) {
-    console.error('--- ERRORE SQL DETTAGLIATO ---', error);
-    return res.status(500).json({ 
-      error: 'Errore durante la ricerca',
-      details: error.message 
-    });
+    console.error('--- ERRORE RICERCA ---', error);
+    return res.status(500).json({ error: 'Errore durante la ricerca' });
   }
 };
 

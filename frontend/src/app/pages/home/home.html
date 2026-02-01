@@ -17,8 +17,7 @@
 
       <!-- Meme del Giorno -->
       <div class="max-w-2xl mx-auto">
-        <!-- Mostra il meme quando è caricato -->
-        <ng-container *ngIf="dailyMeme">
+        <ng-container *ngIf="dailyMeme; else noMeme">
           <app-meme-card
             [imagePath]="dailyMeme.imagePath"
             [title]="dailyMeme.title"
@@ -28,6 +27,16 @@
             [isDaily]="dailyMeme.isDaily">
           </app-meme-card>
         </ng-container>
+
+        <ng-template #noMeme>
+          <div class="bg-gray-800 border-2 border-dashed border-gray-700 rounded-xl p-12 text-center">
+            <div class="text-5xl mb-4">🏜️</div>
+            <h3 class="text-xl font-semibold text-white mb-2">Ancora nulla per oggi!</h3>
+            <p class="text-gray-400">
+              Non sono ancora stati caricati meme oggi. Sii il primo a scriverne la storia!
+            </p>
+          </div>
+        </ng-template>
       </div>
     </div>
   </section>

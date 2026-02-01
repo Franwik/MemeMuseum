@@ -39,20 +39,11 @@ export class MemeService {
     return this.http.get<Meme>(`${this.apiUrl}/daily`, { withCredentials: true });
   }
 
-  /**
-   * Cerca meme con supporto alla paginazione
-   * @param query La stringa da cercare
-   * @param page Il numero della pagina (default 1)
-   * @param size Quanti elementi per pagina (default 10)
-   */
-  searchMemes(query: string, page: number = 1, size: number = 10): Observable<SearchResponse> {
-    return this.http.get<SearchResponse>(`${this.apiUrl}/search`, {
-      params: { 
-        q: query,
-        page: page.toString(),
-        size: size.toString()
-      },
+  searchMemes(query: string): Observable<Meme[]> {
+    return this.http.get<Meme[]>(`${this.apiUrl}/search`, {
+      params: { q: query },
       withCredentials: true
     });
   }
+  
 }
