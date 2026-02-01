@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MemeService } from '../../_services/meme';
-import { SearchBarComponent } from "../search-bar/search-bar";
-import { MemePreviewComponent } from "../meme-preview/meme-preview";
+import { SearchBarComponent } from "../../components/search-bar/search-bar";
+import { MemePreviewComponent } from "../../components/meme-preview/meme-preview";
 import { CommonModule } from '@angular/common'; 
 
 @Component({

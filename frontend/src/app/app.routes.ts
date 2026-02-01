@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home';
-import { SearchComponent } from './components/search/search';
+import { SearchComponent } from './pages/search/search';
 import { MemeDetailsComponent } from './pages/memedetails/memedetails';
 
 export const routes: Routes = [

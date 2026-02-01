@@ -28,9 +28,19 @@ export const uploadMeme = async (req, res) => {
       id_caricatore: id_autore
     });
 
-    // Gestione tags
-    if (Array.isArray(tags)) {
-      for (const nomeTag of tags) {
+    // Gestione tags: con form-data i campi arrivano sempre come stringa,
+    // quindi se tags è una stringa JSON va parsata prima di iterare.
+    let parsedTags = tags;
+    if (typeof tags === 'string') {
+      try {
+        parsedTags = JSON.parse(tags);
+      } catch {
+        parsedTags = [];
+      }
+    }
+
+    if (Array.isArray(parsedTags)) {
+      for (const nomeTag of parsedTags) {
         const [tagInstance] = await Tag.findOrCreate({
           where: { nome: nomeTag }
         });
