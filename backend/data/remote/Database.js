@@ -46,6 +46,52 @@ Voto.belongsTo(Meme, { foreignKey: "id_meme" });
 Utente.hasMany(Voto, { foreignKey: "id_utente" });
 Voto.belongsTo(Utente, { foreignKey: "id_utente" });
 
+// 3. Hook Sequelize per aggiornare i contatori dei voti sul meme
+function setUpVotoHooks() {
+  Voto.addHook("afterCreate", async (voto, options) => {
+    const campo = voto.tipo_voto === 1 ? "count_upvotes" : "count_downvotes";
+    await Meme.increment(campo, {
+      by: 1,
+      where: { id: voto.id_meme },
+      transaction: options.transaction,
+    });
+  });
+
+  Voto.addHook("afterUpdate", async (voto, options) => {
+    // L'hook scatta solo se tipo_voto è effettivamente cambiato
+    if (!voto.changed("tipo_voto")) return;
+
+    // Se il nuovo tipo è 1: il vecchio era -1 → decrementa downvotes, incrementa upvotes
+    // Se il nuovo tipo è -1: il vecchio era 1 → decrementa upvotes, incrementa downvotes
+    const [campoIncrementare, campoDecremanare] =
+      voto.tipo_voto === 1
+        ? ["count_upvotes", "count_downvotes"]
+        : ["count_downvotes", "count_upvotes"];
+
+    await Meme.increment(campoIncrementare, {
+      by: 1,
+      where: { id: voto.id_meme },
+      transaction: options.transaction,
+    });
+    await Meme.decrement(campoDecremanare, {
+      by: 1,
+      where: { id: voto.id_meme },
+      transaction: options.transaction,
+    });
+  });
+
+  Voto.addHook("afterDestroy", async (voto, options) => {
+    const campo = voto.tipo_voto === 1 ? "count_upvotes" : "count_downvotes";
+    await Meme.decrement(campo, {
+      by: 1,
+      where: { id: voto.id_meme },
+      transaction: options.transaction,
+    });
+  });
+}
+
+setUpVotoHooks();
+
 // Funzione per sincronizzare e testare la connessione
 export const initDatabase = async () => {
   try {
