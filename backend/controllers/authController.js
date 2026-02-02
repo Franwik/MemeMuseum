@@ -183,6 +183,14 @@ export async function logout(req, res) {
  */
 export async function verifyToken(req, res) {
   try {
+    // FIX: Controlla se req.cookies esiste
+    if (!req.cookies) {
+      console.error('⚠️ ATTENZIONE: req.cookies è undefined. Assicurati di aver configurato cookie-parser nel server!');
+      return res.status(500).json({ 
+        error: 'Configurazione server non corretta. Cookie parser mancante.' 
+      });
+    }
+
     const token = req.cookies.authToken;
 
     if (!token) {
@@ -225,6 +233,14 @@ export async function verifyToken(req, res) {
  */
 export async function refreshToken(req, res) {
   try {
+    // FIX: Controlla se req.cookies esiste
+    if (!req.cookies) {
+      console.error('⚠️ ATTENZIONE: req.cookies è undefined. Assicurati di aver configurato cookie-parser nel server!');
+      return res.status(500).json({ 
+        error: 'Configurazione server non corretta. Cookie parser mancante.' 
+      });
+    }
+
     const token = req.cookies.authToken;
 
     if (!token) {

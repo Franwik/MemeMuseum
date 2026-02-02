@@ -71,7 +71,7 @@ export class LoginComponent implements OnInit {
 
     const { email, password, rememberMe } = this.loginForm.value;
 
-    this.authService.login(email, password).subscribe({
+    this.authService.login(email, password, rememberMe).subscribe({
       next: (response) => {
         this.isLoading = false;
         this.successMessage = 'Login effettuato con successo!';
