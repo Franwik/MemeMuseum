@@ -25,12 +25,10 @@ export class TopbarComponent implements OnInit {
   }
 
   onLogin(): void {
-    console.log('Login clicked');
-    // Aggiungi qui la logica per il login
+    this.router.navigate(['/login']);
   }
 
   onRegister(): void {
-    console.log('Register clicked');
-    // Aggiungi qui la logica per la registrazione
+    this.router.navigate(['/register']);
   }
 }
