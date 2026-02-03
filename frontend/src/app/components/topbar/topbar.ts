@@ -44,5 +44,15 @@ export class TopbarComponent implements OnInit {
       window.location.reload();
     });
   }
+
+  // Naviga alla pagina di creazione meme
+  onCreateMeme(): void {
+    this.router.navigate(['/create-meme']);
+  }
+
+  // Naviga alla pagina con tutti i meme (ricerca senza query)
+  onExplore(): void {
+    this.router.navigate(['/explore']);
+  }
   
 }

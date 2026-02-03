@@ -102,6 +102,48 @@ export const getDailyMeme = async (req, res) => {
   }
 };
 
+export const getAllMemes = async (req, res) => {
+  try {
+    const memes = await Meme.findAll({ 
+      include: [
+        {
+          model: Utente,
+          as: 'autore',
+          attributes: ['id', 'username']
+        },
+        { 
+          model: Tag,
+          as: 'tags',
+          attributes: ['nome'],
+          through: { attributes: [] }
+        }
+      ],
+      order: [['data_caricamento', 'DESC']]
+    });
+
+    // Mappatura per uniformare la risposta a quella di searchMemes
+    const formattedMemes = memes.map(meme => ({
+      id: meme.id,
+      titolo: meme.titolo,
+      pathRelativo: meme.pathRelativo,
+      formato_file: meme.formato_file,
+      data_caricamento: meme.data_caricamento,
+      autore: meme.autore ? {
+        id: meme.autore.id,
+        username: meme.autore.username
+      } : { id: null, username: 'Anonimo' },
+      upvotes: meme.count_upvotes || 0,
+      downvotes: meme.count_downvotes || 0,
+      tags: meme.tags ? meme.tags.map(t => t.nome) : []
+    }));
+
+    return res.status(200).json(formattedMemes);
+  } catch (error) {
+    console.error('Errore getAllMemes:', error);
+    return res.status(500).json({ error: 'Errore nel recupero dei meme' });
+  }
+};
+
 export const searchMemes = async (req, res) => {
   try {
     const { q } = req.query; // Rimosse page e size

@@ -66,6 +66,11 @@ export class MemeService {
     });
   }
 
+  // Recupera tutti i meme (ricerca con query vuota o spazio)
+  getAllMemes(): Observable<Meme[]> {
+    return this.http.get<Meme[]>(`${this.apiUrl}/getall`, { withCredentials: true });
+  }
+
   // Recupera i commenti di un meme
   getMemeComments(id_meme: number): Observable<Commento[]> {
     return this.http.get<Commento[]>(`${this.apiUrl}/comment/${id_meme}`, { withCredentials: true });
@@ -74,5 +79,10 @@ export class MemeService {
   // Invia un commento per un meme
   postComment(id_utente: number, id_meme: number, testo: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/comment`, { id_utente, id_meme, testo }, { withCredentials: true });
+  }
+
+  // Carica un nuovo meme
+  uploadMeme(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/upload`, formData, { withCredentials: true });
   }
 }

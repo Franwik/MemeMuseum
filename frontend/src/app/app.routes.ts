@@ -5,6 +5,8 @@ import { RegisterComponent } from './pages/register/register';
 import { SearchComponent } from './pages/search/search';
 import { MemeDetailsComponent } from './pages/memedetails/memedetails';
 import { authGuard, guestGuard } from './_auth/auth.guard-guard';
+import { CreateMemeComponent } from './pages/create-meme/create-meme';
+import { ExploreMemeComponent } from './pages/explore-meme/explore-meme';
 
 export const routes: Routes = [
   {path: '',
@@ -14,7 +16,9 @@ export const routes: Routes = [
     {path: 'login', component: LoginComponent, canActivate: [guestGuard]},
     {path: 'register', component: RegisterComponent, canActivate: [guestGuard]},
     { path: 'search', component: SearchComponent},
-    { path: 'details/:id', component: MemeDetailsComponent}
+    { path: 'details/:id', component: MemeDetailsComponent},
+    {path: 'create', component: CreateMemeComponent, canActivate: [authGuard]},
+    {path: 'explore', component: ExploreMemeComponent},
   ]
 
 },
