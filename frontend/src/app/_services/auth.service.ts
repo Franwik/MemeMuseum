@@ -119,12 +119,10 @@ export class AuthService {
         // Rimuovi l'utente dallo stato dell'app
         this.currentUserSubject.next(null);
         // Reindirizza alla home
-        this.router.navigate(['/']);
       }),
       catchError((error) => {
         // Anche in caso di errore, pulisci lo stato locale
         this.currentUserSubject.next(null);
-        this.router.navigate(['/']);
         return of(null);
       })
     );

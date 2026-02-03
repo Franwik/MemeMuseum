@@ -268,6 +268,11 @@ export const commentMeme = async (req, res) => {
       return res.status(400).json({ error: 'Campi "id_utente", "id_meme" e "testo" obbligatori' });
     }
 
+    // Verifica che il testo non sia vuoto dopo il trim
+    if (!testo.trim()) {
+      return res.status(400).json({ error: 'Il commento non può essere vuoto' });
+    }
+
     const meme = await Meme.findByPk(id_meme);
 
     if (!meme) {
@@ -275,16 +280,27 @@ export const commentMeme = async (req, res) => {
     }
 
     // Creazione del commento
-    const commento = await meme.createCommento({
+    const commento = await Commento.create({
       id_utente,
-      testo,
-      data_commento: new Date(),
-      id_meme
+      id_meme,
+      testo: testo.trim(),
+      data_creazione: new Date()
+    });
+
+    // Recupera il commento con i dati dell'utente
+    const commentoCompleto = await Commento.findByPk(commento.id, {
+      include: [
+        {
+          model: Utente,
+          as: 'autore_commento',
+          attributes: ['id', 'username']
+        }
+      ]
     });
 
     return res.status(201).json({
       message: 'Commento aggiunto con successo',
-      commento: { id: commento.id, testo: commento.testo, data_commento: commento.data_commento }
+      commento: commentoCompleto
     });
 
   } catch (error) {
@@ -309,7 +325,8 @@ export const getMemeComments = async (req, res) => {
           as: 'autore_commento',
           attributes: ['id', 'username']
         }
-      ]
+      ],
+      order: [['data_creazione', 'DESC']] // I più recenti per primi
     });
 
     return res.status(200).json(commenti);

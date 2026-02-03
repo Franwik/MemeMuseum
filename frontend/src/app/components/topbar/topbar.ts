@@ -29,17 +29,20 @@ export class TopbarComponent implements OnInit {
   }
 
   onLogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login'], { 
+      queryParams: { returnUrl: this.router.url } 
+    });
   }
 
   onRegister(): void {
     this.router.navigate(['/register']);
   }
 
-  // Aggiunta funzione di logout
   onLogout(): void {
     this.authService.logout().subscribe(() => {
-      this.router.navigate(['/home']);
+      // Ricarica la pagina corrente
+      window.location.reload();
     });
   }
+  
 }

@@ -30,22 +30,52 @@
     </div>
 
     <div class="mt-10">
-      <h2 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-2">Commenti</h2>
+      <h2 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-2">
+        Commenti 
+        <span class="text-gray-500 text-lg ml-2">({{ comments.length }})</span>
+      </h2>
 
       <div *ngIf="currentUser; else loginMsg" class="mb-8">
-        <textarea [(ngModel)]="newComment" placeholder="Scrivi un commento..."
-          class="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        <textarea [(ngModel)]="newComment" 
+          placeholder="Scrivi un commento..."
+          [disabled]="isSendingComment"
+          class="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+          rows="3"></textarea>
         <div class="flex justify-end mt-2">
-          <button (click)="sendComment()" class="bg-blue-600 px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition">Pubblica</button>
+          <button 
+            (click)="sendComment()" 
+            [disabled]="!newComment.trim() || isSendingComment"
+            class="bg-blue-600 px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!isSendingComment">Pubblica</span>
+            <span *ngIf="isSendingComment">Invio...</span>
+          </button>
         </div>
       </div>
+      
       <ng-template #loginMsg>
-        <p class="bg-gray-800 p-4 rounded-lg text-gray-400 text-center mb-8">Accedi per partecipare alla discussione.</p>
+        <p class="bg-gray-800 p-4 rounded-lg text-gray-400 text-center mb-8">
+          Accedi per partecipare alla discussione.
+        </p>
       </ng-template>
 
-      <div class="space-y-4">
-        <div *ngFor="let c of comments" class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-          <p class="text-blue-400 font-bold text-sm mb-1">&#64;{{ c.utente?.username }}</p>
+      <!-- Loading state per i commenti -->
+      <div *ngIf="isLoadingComments" class="text-center py-8 text-gray-500">
+        Caricamento commenti...
+      </div>
+
+      <!-- Lista commenti -->
+      <div *ngIf="!isLoadingComments" class="space-y-4">
+        <div *ngIf="comments.length === 0" class="bg-gray-800 p-8 rounded-lg text-gray-400 text-center">
+          Nessun commento ancora. Sii il primo a commentare!
+        </div>
+
+        <div *ngFor="let c of comments" class="bg-gray-800 p-4 rounded-lg border border-gray-700 hover:border-gray-600 transition">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-blue-400 font-bold text-sm">
+              &#64;{{ c.autore_commento.username || 'Anonimo' }}
+            </p>
+            <span class="text-xs text-gray-500">{{ formatDate(c.data_creazione) }}</span>
+          </div>
           <p class="text-gray-200">{{ c.testo }}</p>
         </div>
       </div>

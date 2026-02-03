@@ -18,6 +18,18 @@ export interface Meme {
   downvotes: number;
 }
 
+export interface Commento {
+  id: number;
+  testo: string;
+  data_creazione: string;
+  id_utente: number;
+  id_meme: number;
+  autore_commento: {
+    id: number;
+    username: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -52,5 +64,15 @@ export class MemeService {
       params: { q: query },
       withCredentials: true
     });
+  }
+
+  // Recupera i commenti di un meme
+  getMemeComments(id_meme: number): Observable<Commento[]> {
+    return this.http.get<Commento[]>(`${this.apiUrl}/comment/${id_meme}`, { withCredentials: true });
+  }
+
+  // Invia un commento per un meme
+  postComment(id_utente: number, id_meme: number, testo: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/comment`, { id_utente, id_meme, testo }, { withCredentials: true });
   }
 }

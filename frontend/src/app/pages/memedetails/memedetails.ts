@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '../../_services/auth.service';
-import { MemeService, Meme } from '../../_services/meme.service';
+import { MemeService, Meme, Commento } from '../../_services/meme.service';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -15,8 +15,10 @@ import { HttpClient } from '@angular/common/http';
 export class MemeDetailsComponent implements OnInit {
   meme: Meme | null = null;
   currentUser: User | null = null;
-  comments: any[] = [];
+  comments: Commento[] = [];
   newComment: string = '';
+  isLoadingComments: boolean = false;
+  isSendingComment: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -62,7 +64,7 @@ export class MemeDetailsComponent implements OnInit {
     this.memeService.getMemeById(id).subscribe({
       next: (data) => {
         this.meme = data;
-        this.cdr.detectChanges(); // Forza il rilevamento delle modifiche
+        this.cdr.detectChanges();
       },
       error: (err) => console.error("Errore nel caricamento del meme", err)
     });
@@ -80,10 +82,62 @@ export class MemeDetailsComponent implements OnInit {
   }
 
   loadComments(memeId: number) {
-    // TODO: Implementa il caricamento dei commenti quando avrai l'endpoint
+    this.isLoadingComments = true;
+    this.memeService.getMemeComments(memeId).subscribe({
+      next: (data) => {
+        this.comments = data;
+        this.isLoadingComments = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error("Errore nel caricamento dei commenti", err);
+        this.isLoadingComments = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   sendComment() {
-    // TODO: Implementa l'invio del commento quando avrai l'endpoint
+    if (!this.currentUser || !this.meme || !this.newComment.trim()) {
+      return;
+    }
+
+    this.isSendingComment = true;
+
+    this.memeService.postComment(this.currentUser.id, this.meme.id, this.newComment).subscribe({
+      next: (response) => {
+        console.log("Commento inviato con successo", response);
+        this.newComment = ''; // Resetta il campo
+        this.loadComments(this.meme!.id); // Ricarica i commenti
+        this.isSendingComment = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error("Errore nell'invio del commento", err);
+        this.isSendingComment = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // Formatta la data del commento in modo leggibile
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Adesso';
+    if (diffMins < 60) return `${diffMins} minuti fa`;
+    if (diffHours < 24) return `${diffHours} ore fa`;
+    if (diffDays < 7) return `${diffDays} giorni fa`;
+    
+    return date.toLocaleDateString('it-IT', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric' 
+    });
   }
 }
