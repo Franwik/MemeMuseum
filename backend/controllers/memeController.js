@@ -1,4 +1,4 @@
-import { Meme, Tag, Utente, Voto } from '../data/remote/Database.js';
+import { Meme, Tag, Utente, Voto, Commento } from '../data/remote/Database.js';
 import { sequelize } from '../data/remote/Database.js';
 import { Op, where } from "sequelize";
 
@@ -256,5 +256,66 @@ export const getMemeById = async (req, res) => {
   } catch (error) {
     console.error('Errore getMemeById:', error);
     return res.status(500).json({ error: 'Errore nel recupero del meme' });
+  }
+};
+
+export const commentMeme = async (req, res) => {
+  try {
+    const { id_utente, id_meme, testo } = req.body;
+
+    // Validazioni
+    if (!id_utente || !id_meme || !testo) {
+      return res.status(400).json({ error: 'Campi "id_utente", "id_meme" e "testo" obbligatori' });
+    }
+
+    const meme = await Meme.findByPk(id_meme);
+
+    if (!meme) {
+      return res.status(404).json({ error: 'Meme non trovato' });
+    }
+
+    // Creazione del commento
+    const commento = await meme.createCommento({
+      id_utente,
+      testo,
+      data_commento: new Date(),
+      id_meme
+    });
+
+    return res.status(201).json({
+      message: 'Commento aggiunto con successo',
+      commento: { id: commento.id, testo: commento.testo, data_commento: commento.data_commento }
+    });
+
+  } catch (error) {
+    console.error('Errore commentMeme:', error);
+    return res.status(500).json({ error: 'Errore durante l\'aggiunta del commento' });
+  }
+};
+
+export const getMemeComments = async (req, res) => {
+  try {
+    const { id_meme } = req.params;
+
+    if (!id_meme) {
+      return res.status(400).json({ error: 'Parametro "id_meme" obbligatorio' });
+    }
+
+    const commenti = await Commento.findAll({
+      where: { id_meme },
+      include: [
+        {
+          model: Utente,
+          as: 'autore_commento',
+          attributes: ['id', 'username']
+        }
+      ]
+    });
+
+    return res.status(200).json(commenti);
+
+  } catch (error) {
+    console.error('Errore getMemeComments:', error);
+    return res.status(500).json({ error: 'Errore nel recupero dei commenti' });
   }
 };

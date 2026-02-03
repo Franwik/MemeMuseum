@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { uploadMeme, getDailyMeme, searchMemes, voteMeme, getMemeById } from '../controllers/memeController.js'
+import { uploadMeme, getDailyMeme, searchMemes, voteMeme, getMemeById, commentMeme, getMemeComments } from '../controllers/memeController.js'
 import { uploader } from '../data/local/multerStorage/uploader.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
@@ -10,5 +10,8 @@ router.get('/daily', getDailyMeme);
 router.get('/search', searchMemes);
 router.post('/vote', authMiddleware, voteMeme);
 router.get('/:id', getMemeById);
+// router.post('/comment', authMiddleware, commentMeme);
+router.post('/comment', commentMeme);
+router.get('/comment/:id_meme', getMemeComments);
 
 export default router;
