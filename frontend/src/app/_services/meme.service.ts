@@ -66,6 +66,10 @@ export class MemeService {
     });
   }
 
+  getAllTags(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/tags`, { withCredentials: true });
+  }
+
   // Recupera tutti i meme (ricerca con query vuota o spazio)
   getAllMemes(): Observable<Meme[]> {
     return this.http.get<Meme[]>(`${this.apiUrl}/getall`, { withCredentials: true });

@@ -47,7 +47,7 @@ export class TopbarComponent implements OnInit {
 
   // Naviga alla pagina di creazione meme
   onCreateMeme(): void {
-    this.router.navigate(['/create-meme']);
+    this.router.navigate(['/create']);
   }
 
   // Naviga alla pagina con tutti i meme (ricerca senza query)

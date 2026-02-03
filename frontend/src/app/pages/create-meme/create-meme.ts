@@ -21,6 +21,8 @@ export class CreateMemeComponent implements OnInit {
   uploadSuccess: boolean = false;
   uploadError: string | null = null;
   currentUser: User | null = null;
+  existingTags: string[] = [];
+  filteredSuggestions: string[] = [];
 
   constructor(
     private memeService: MemeService,
@@ -37,6 +39,32 @@ export class CreateMemeComponent implements OnInit {
         this.router.navigate(['/login']);
       }
     });
+    this.loadExistingTags();
+  }
+
+  loadExistingTags() {
+    // Assicurati di aggiungere getAllTags() nel tuo meme.service.ts
+    this.memeService.getAllTags().subscribe(tags => {
+      this.existingTags = tags;
+    });
+  }
+
+  filterTags() {
+    const query = this.newTag.toLowerCase().trim();
+    if (!query) {
+      this.filteredSuggestions = [];
+      return;
+    }
+    // Filtra i tag esistenti escludendo quelli già aggiunti
+    this.filteredSuggestions = this.existingTags.filter(t => 
+      t.toLowerCase().includes(query) && !this.tags.includes(t)
+    ).slice(0, 5); // Mostra solo i primi 5
+  }
+
+  selectSuggestion(tag: string) {
+    this.newTag = tag;
+    this.addTag(); // Aggiunge il tag e pulisce i suggerimenti
+    this.filteredSuggestions = [];
   }
 
   onFileSelected(event: any): void {
@@ -92,24 +120,15 @@ export class CreateMemeComponent implements OnInit {
     this.imagePreview = null;
   }
 
-  addTag(): void {
-    const tag = this.newTag.trim().toLowerCase();
-    
-    if (!tag) return;
-    
-    if (this.tags.includes(tag)) {
-      this.uploadError = 'Questo tag è già stato aggiunto';
-      return;
-    }
+  addTag(event?: Event) {
+    event?.preventDefault();
 
-    if (this.tags.length >= 10) {
-      this.uploadError = 'Puoi aggiungere massimo 10 tags';
-      return;
-    }
+    const tag = this.newTag.trim().toLowerCase();
+    if (!tag || this.tags.includes(tag)) return;
 
     this.tags.push(tag);
     this.newTag = '';
-    this.uploadError = null;
+    this.filteredSuggestions = [];
   }
 
   removeTag(index: number): void {

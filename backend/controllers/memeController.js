@@ -378,3 +378,19 @@ export const getMemeComments = async (req, res) => {
     return res.status(500).json({ error: 'Errore nel recupero dei commenti' });
   }
 };
+
+export const getAllTags = async (req, res) => {
+  try {
+    const tags = await Tag.findAll({
+      attributes: [[sequelize.fn('DISTINCT', sequelize.col('nome')), 'nome']],
+      order: [['nome', 'ASC']]
+    });
+    
+    // Restituiamo un array semplice di stringhe per facilitare il frontend
+    const tagList = tags.map(t => t.nome);
+    return res.status(200).json(tagList);
+  } catch (error) {
+    console.error('Errore getAllTags:', error);
+    return res.status(500).json({ error: 'Errore nel recupero dei tag' });
+  }
+};
