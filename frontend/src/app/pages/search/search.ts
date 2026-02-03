@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Meme, MemeService } from '../../_services/meme';
+import { Meme, MemeService } from '../../_services/meme.service';
 import { SearchBarComponent } from "../../components/search-bar/search-bar";
 import { MemePreviewComponent } from "../../components/meme-preview/meme-preview";
 import { CommonModule } from '@angular/common'; 
@@ -25,7 +25,8 @@ export class SearchComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private memeService: MemeService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +44,7 @@ export class SearchComponent implements OnInit {
       next: (data) => {
         this.allResults = data;
         this.applySortAndPagination();
+        this.cdr.detectChanges();
       },
       error: (err) => console.error(err)
     });

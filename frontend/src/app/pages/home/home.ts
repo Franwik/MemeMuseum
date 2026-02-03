@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemeCardComponent } from '../../components/meme-card/meme-card';
-import { MemeService } from '../../_services/meme';
+import { MemeService } from '../../_services/meme.service';
 import { SearchBarComponent } from '../../components/search-bar/search-bar';
 
 // Interfaccia per i dati del meme

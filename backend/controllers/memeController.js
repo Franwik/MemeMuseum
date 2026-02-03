@@ -212,3 +212,49 @@ export const voteMeme = async (req, res) => {
     return res.status(500).json({ error: 'Errore durante il voto' });
   }
 };
+
+export const getMemeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const meme = await Meme.findByPk(id, {
+      include: [
+        {
+          model: Utente,
+          as: 'autore',
+          attributes: ['id', 'username']
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: ['nome'],
+          through: { attributes: [] }
+        }
+      ]
+    });
+
+    if (!meme) {
+      return res.status(404).json({ error: 'Meme non trovato' });
+    }
+
+    // Formattazione coerente con getDailyMeme e searchMemes
+    return res.status(200).json({
+      id: meme.id,
+      titolo: meme.titolo,
+      pathRelativo: meme.pathRelativo,
+      formato_file: meme.formato_file,
+      data_caricamento: meme.data_caricamento,
+      autore: meme.autore ? {
+        id: meme.autore.id,
+        username: meme.autore.username
+      } : { id: null, username: 'Anonimo' },
+      upvotes: meme.count_upvotes,
+      downvotes: meme.count_downvotes,
+      tags: meme.tags ? meme.tags.map(t => t.nome) : []
+    });
+
+  } catch (error) {
+    console.error('Errore getMemeById:', error);
+    return res.status(500).json({ error: 'Errore nel recupero del meme' });
+  }
+};
