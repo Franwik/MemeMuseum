@@ -17,6 +17,7 @@ export class SearchComponent implements OnInit {
   pagedResults: Meme[] = [];
   
   lastQuery: string = '';
+  lastDate: string = '';
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 1;
@@ -32,25 +33,26 @@ export class SearchComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const newQuery = params['q'] || '';
+      const newDate = params['date'] || ''; // Recupera la data dall'URL
       const page = params['page'] ? parseInt(params['page']) : 1;
       const sort = params['sort'] || 'newest';
       
-      // Ripristina lo stato dalla URL
       this.currentPage = page;
       this.sortBy = sort;
       
-      if (newQuery !== this.lastQuery) {
+      // Controlla se almeno uno dei parametri è cambiato
+      if (newQuery !== this.lastQuery || newDate !== this.lastDate) {
         this.lastQuery = newQuery;
-        this.performApiCall(this.lastQuery);
+        this.lastDate = newDate;
+        this.performApiCall(this.lastQuery, this.lastDate);
       } else {
-        // Se la query è la stessa, applica solo sort e paginazione
         this.applySortAndPagination();
       }
     });
   }
 
-  performApiCall(query: string) {
-    this.memeService.searchMemes(query).subscribe({
+  performApiCall(query: string, date: string) {
+    this.memeService.searchMemes(query, date).subscribe({
       next: (data) => {
         this.allResults = data;
         this.applySortAndPagination();
@@ -107,6 +109,7 @@ export class SearchComponent implements OnInit {
       relativeTo: this.route,
       queryParams: { 
         q: this.lastQuery,
+        date: this.lastDate,
         page: this.currentPage,
         sort: this.sortBy
       },
@@ -114,10 +117,11 @@ export class SearchComponent implements OnInit {
     });
   }
 
-  onNewSearch(query: string) {
+  onNewSearch(searchData: { q: string, date: string }) {
     this.router.navigate(['/search'], { 
       queryParams: { 
-        q: query,
+        q: searchData.q,
+        date: searchData.date,
         page: 1,
         sort: 'newest'
       } 

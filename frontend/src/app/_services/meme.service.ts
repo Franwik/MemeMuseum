@@ -1,6 +1,6 @@
 // meme.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Meme {
@@ -59,9 +59,17 @@ export class MemeService {
     return this.http.post(`${this.apiUrl}/vote`, { id_utente, id_meme, tipo_voto }, { withCredentials: true });
   }
 
-  searchMemes(query: string): Observable<Meme[]> {
+  searchMemes(query: string, date?: string): Observable<Meme[]> {
+    // Inizializziamo i parametri con la query testuale 'q'
+    let params = new HttpParams().set('q', query);
+
+    // Se la data è presente, la aggiungiamo ai parametri della richiesta
+    if (date) {
+      params = params.set('date', date);
+    }
+
     return this.http.get<Meme[]>(`${this.apiUrl}/search`, {
-      params: { q: query },
+      params: params, // Passiamo l'oggetto HttpParams completo
       withCredentials: true
     });
   }

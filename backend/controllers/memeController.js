@@ -157,63 +157,58 @@ export const getAllMemes = async (req, res) => {
 
 export const searchMemes = async (req, res) => {
   try {
-    const { q } = req.query;
+    const { q, date } = req.query; 
     
-    if (!q) {
-      return res.status(400).json({ error: 'Stringa di ricerca mancante' });
-    }
+    let searchConditions = [];
 
-    // Step 1: Trova gli ID dei meme che matchano la ricerca
-    const matchingMemes = await Meme.findAll({
-      where: {
+    // Filtro testuale
+    if (q) {
+      searchConditions.push({
         [Op.or]: [
           { titolo: { [Op.iLike]: `%${q}%` } },
           { '$autore.username$': { [Op.iLike]: `%${q}%` } },
           { '$tags.nome$': { [Op.iLike]: `%${q}%` } }
         ]
-      },
+      });
+    }
+
+    // Filtro per data
+    if (date) {
+      searchConditions.push(
+        sequelize.where(
+          sequelize.fn('DATE', sequelize.col('data_caricamento')), 
+          Op.eq,
+          date
+        )
+      );
+    }
+
+    if (searchConditions.length === 0) {
+      return res.status(400).json({ error: 'Fornire almeno un parametro di ricerca (q o date)' });
+    }
+
+    // Step 1: Trova gli ID dei meme che matchano la ricerca
+    const matchingMemes = await Meme.findAll({
+      where: { [Op.and]: searchConditions }, 
       include: [
-        {
-          model: Utente,
-          as: 'autore',
-          attributes: []
-        },
-        {
-          model: Tag,
-          as: 'tags',
-          attributes: [],
-          through: { attributes: [] }
-        }
+        { model: Utente, as: 'autore', attributes: [] },
+        { model: Tag, as: 'tags', attributes: [], through: { attributes: [] } }
       ],
       attributes: ['id'],
       distinct: true,
       raw: true 
     });
 
-    // Estrai gli ID in modo pulito
     const memeIds = matchingMemes.map(m => m.id);
 
-    if (memeIds.length === 0) {
-      return res.status(200).json([]);
-    }
+    if (memeIds.length === 0) return res.status(200).json([]);
 
-    // Step 2: Recupera i meme completi con TUTTI i loro tag
+    // Step 2: Recupero completo con tutti i dati necessari
     const rows = await Meme.findAll({
-      where: {
-        id: { [Op.in]: memeIds }
-      },
+      where: { id: { [Op.in]: memeIds } },
       include: [
-        {
-          model: Utente,
-          as: 'autore',
-          attributes: ['id', 'username']
-        },
-        {
-          model: Tag,
-          as: 'tags',
-          attributes: ['nome'],
-          through: { attributes: [] }
-        }
+        { model: Utente, as: 'autore', attributes: ['id', 'username'] },
+        { model: Tag, as: 'tags', attributes: ['nome'], through: { attributes: [] } }
       ],
       order: [['data_caricamento', 'DESC']]
     });
@@ -224,10 +219,7 @@ export const searchMemes = async (req, res) => {
       pathRelativo: meme.pathRelativo,
       formato_file: meme.formato_file,
       data_caricamento: meme.data_caricamento,
-      autore: meme.autore ? {
-        id: meme.autore.id,
-        username: meme.autore.username
-      } : { id: null, username: 'Anonimo' },
+      autore: meme.autore ? { id: meme.autore.id, username: meme.autore.username } : { id: null, username: 'Anonimo' },
       upvotes: meme.count_upvotes,
       downvotes: meme.count_downvotes,
       tags: meme.tags ? meme.tags.map(t => t.nome) : []

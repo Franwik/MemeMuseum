@@ -3,7 +3,9 @@
 
   <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 mt-4">
     <h2 class="text-white text-xl">
-      Risultati per: <span class="text-blue-400">"{{ lastQuery }}"</span>
+      Risultati
+      <span *ngIf="lastQuery"> per: <span class="text-blue-400">"{{ lastQuery }}"</span></span>
+      <span *ngIf="lastDate"> del: <span class="text-blue-400">{{ lastDate | date:'dd/MM/yyyy' }}</span></span>
       <span class="text-gray-500 text-sm ml-2">({{ allResults.length }} trovati)</span>
     </h2>
 

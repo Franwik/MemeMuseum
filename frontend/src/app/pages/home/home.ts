@@ -87,9 +87,12 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  onSearch(query: string): void {
+  onSearch(searchData: { q: string, date: string }): void {
     this.router.navigate(['/search'], { 
-      queryParams: { q: query } 
+      queryParams: { 
+        q: searchData.q, 
+        date: searchData.date
+      } 
     });
   }
   

@@ -109,10 +109,11 @@ export class ExploreMemeComponent implements OnInit {
     });
   }
 
-  onNewSearch(query: string) {
+  onNewSearch(searchData: { q: string, date: string }) {
     this.router.navigate(['/search'], { 
       queryParams: { 
-        q: query,
+        q: searchData.q,
+        date: searchData.date,
         page: 1,
         sort: 'newest'
       } 

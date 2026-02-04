@@ -11,13 +11,18 @@ import { FormsModule } from '@angular/forms';
 
 export class SearchBarComponent {
   query: string = '';
+  searchDate: string = ''; // Nuova variabile per l'input date
 
-  // Emettiamo l'evento così il componente padre (Home) sa cosa cercare
-  @Output() search = new EventEmitter<string>();
+  // Emettiamo un oggetto con entrambi i parametri
+  @Output() search = new EventEmitter<{q: string, date: string}>();
 
   handleSearch(): void {
-    if (this.query.trim()) {
-      this.search.emit(this.query.trim());
+    // Emittiamo l'evento anche se solo uno dei due campi è pieno
+    if (this.query.trim() || this.searchDate) {
+      this.search.emit({
+        q: this.query.trim(),
+        date: this.searchDate
+      });
     }
   }
 }
