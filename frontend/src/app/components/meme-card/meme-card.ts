@@ -14,4 +14,5 @@ export class MemeCardComponent {
   @Input() upvotes: number = 0;
   @Input() downvotes: number = 0;
   @Input() isDaily: boolean = false;
+  @Input() tags: string[] = [];
 }

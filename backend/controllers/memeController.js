@@ -68,6 +68,12 @@ export const getDailyMeme = async (req, res) => {
           model: Utente,
           as: 'autore',
           attributes: ['id', 'username']
+        },
+        { 
+          model: Tag,
+          as: 'tags',
+          attributes: ['nome'],
+          through: { attributes: [] }
         }
       ],
       where: sequelize.where(
@@ -83,18 +89,23 @@ export const getDailyMeme = async (req, res) => {
       return res.status(404).json({ error: 'Nessun meme trovato' });
     }
 
-    return res.status(200).json({
+    // Formatta il singolo meme (non è un array!)
+    const formattedMeme = {
       id: meme.id,
       titolo: meme.titolo,
-      formato_file: meme.formato_file,
       pathRelativo: meme.pathRelativo,
-      autore: {
+      formato_file: meme.formato_file,
+      data_caricamento: meme.data_caricamento,
+      autore: meme.autore ? {
         id: meme.autore.id,
         username: meme.autore.username
-      },
-      upvotes: meme.count_upvotes,
-      downvotes: meme.count_downvotes
-    });
+      } : { id: null, username: 'Anonimo' },
+      upvotes: meme.count_upvotes || 0,
+      downvotes: meme.count_downvotes || 0,
+      tags: meme.tags ? meme.tags.map(t => t.nome) : []
+    };
+
+    return res.status(200).json(formattedMeme);
 
   } catch (error) {
     console.error('Errore getDailyMeme:', error);
@@ -146,20 +157,50 @@ export const getAllMemes = async (req, res) => {
 
 export const searchMemes = async (req, res) => {
   try {
-    const { q } = req.query; // Rimosse page e size
+    const { q } = req.query;
     
     if (!q) {
       return res.status(400).json({ error: 'Stringa di ricerca mancante' });
     }
 
-    // Usiamo findAll invece di findAndCountAll
-    const rows = await Meme.findAll({
+    // Step 1: Trova gli ID dei meme che matchano la ricerca
+    const matchingMemes = await Meme.findAll({
       where: {
         [Op.or]: [
           { titolo: { [Op.iLike]: `%${q}%` } },
           { '$autore.username$': { [Op.iLike]: `%${q}%` } },
           { '$tags.nome$': { [Op.iLike]: `%${q}%` } }
         ]
+      },
+      include: [
+        {
+          model: Utente,
+          as: 'autore',
+          attributes: []
+        },
+        {
+          model: Tag,
+          as: 'tags',
+          attributes: [],
+          through: { attributes: [] }
+        }
+      ],
+      attributes: ['id'],
+      distinct: true,
+      raw: true 
+    });
+
+    // Estrai gli ID in modo pulito
+    const memeIds = matchingMemes.map(m => m.id);
+
+    if (memeIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Step 2: Recupera i meme completi con TUTTI i loro tag
+    const rows = await Meme.findAll({
+      where: {
+        id: { [Op.in]: memeIds }
       },
       include: [
         {
@@ -174,7 +215,7 @@ export const searchMemes = async (req, res) => {
           through: { attributes: [] }
         }
       ],
-      order: [['data_caricamento', 'DESC']] // Default decrescente
+      order: [['data_caricamento', 'DESC']]
     });
 
     const formattedMemes = rows.map(meme => ({
@@ -182,7 +223,7 @@ export const searchMemes = async (req, res) => {
       titolo: meme.titolo,
       pathRelativo: meme.pathRelativo,
       formato_file: meme.formato_file,
-      data_caricamento: meme.data_caricamento, // Necessario per il sort frontend
+      data_caricamento: meme.data_caricamento,
       autore: meme.autore ? {
         id: meme.autore.id,
         username: meme.autore.username
@@ -192,7 +233,6 @@ export const searchMemes = async (req, res) => {
       tags: meme.tags ? meme.tags.map(t => t.nome) : []
     }));
 
-    // Restituiamo direttamente l'array
     return res.status(200).json(formattedMemes);
 
   } catch (error) {

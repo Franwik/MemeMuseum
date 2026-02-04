@@ -28,7 +28,8 @@
       [author]="meme.autore.username || 'Anonimo'"
       [imagePath]="'http://localhost:3000/' + meme.pathRelativo"
       [upvotes]="meme.upvotes"
-      [downvotes]="meme.downvotes">
+      [downvotes]="meme.downvotes"
+      [tags]="meme.tags || []">
     </app-meme-preview>
   </div>
 

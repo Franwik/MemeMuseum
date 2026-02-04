@@ -47,7 +47,7 @@
               #fileInput
               type="file"
               (change)="onFileSelected($event)"
-              accept="image/*"
+              accept=".png,.jpg,.jpeg,image/png,image/jpeg"
               class="hidden">
 
             <div *ngIf="!selectedFile">
@@ -57,7 +57,7 @@
               <p class="mt-2 text-sm text-gray-400">
                 Clicca per selezionare o trascina qui un'immagine
               </p>
-              <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF fino a 10MB</p>
+              <p class="text-xs text-gray-500 mt-1">PNG, JPG, JPEG fino a 10MB</p>
             </div>
 
             <div *ngIf="selectedFile" class="space-y-3">

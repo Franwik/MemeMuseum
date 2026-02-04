@@ -16,6 +16,7 @@ export class MemePreviewComponent {
   @Input() author: string = '';
   @Input() upvotes: number = 0;
   @Input() downvotes: number = 0;
+  @Input() tags: string[] = [];
 
   constructor(private router: Router) {}
 

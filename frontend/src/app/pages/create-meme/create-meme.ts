@@ -90,9 +90,13 @@ export class CreateMemeComponent implements OnInit {
   }
 
   handleFile(file: File): void {
-    // Validazione tipo file
-    if (!file.type.startsWith('image/')) {
-      this.uploadError = 'Per favore seleziona un file immagine';
+    // Validazione tipo file - solo PNG, JPG e JPEG
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    const fileExtension = file.name.toLowerCase().split('.').pop();
+    const allowedExtensions = ['png', 'jpg', 'jpeg'];
+    
+    if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension || '')) {
+      this.uploadError = 'Formato non supportato. Usa solo PNG, JPG o JPEG';
       return;
     }
 

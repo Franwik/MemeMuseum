@@ -24,13 +24,14 @@
             [author]="dailyMeme.author"
             [upvotes]="dailyMeme.upvotes"
             [downvotes]="dailyMeme.downvotes"
-            [isDaily]="dailyMeme.isDaily">
+            [isDaily]="dailyMeme.isDaily"
+            [tags]="dailyMeme.tags">
           </app-meme-card>
         </ng-container>
 
         <ng-template #noMeme>
           <div class="bg-gray-800 border-2 border-dashed border-gray-700 rounded-xl p-12 text-center">
-            <div class="text-5xl mb-4">🏜️</div>
+            <div class="text-5xl mb-4">🖼️</div>
             <h3 class="text-xl font-semibold text-white mb-2">Ancora nulla per oggi!</h3>
             <p class="text-gray-400">
               Non sono ancora stati caricati meme oggi. Sii il primo a scriverne la storia!
