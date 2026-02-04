@@ -13,14 +13,14 @@ import { CommonModule } from '@angular/common';
 })
 
 export class SearchComponent implements OnInit {
-  allResults: Meme[] = [];      // Tutti i dati dal server
-  pagedResults: Meme[] = [];    // Solo i 10 da visualizzare
+  allResults: Meme[] = [];
+  pagedResults: Meme[] = [];
   
   lastQuery: string = '';
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 1;
-  sortBy: string = 'newest'; // Valore di default
+  sortBy: string = 'newest';
 
   constructor(
     private route: ActivatedRoute,
@@ -32,9 +32,19 @@ export class SearchComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const newQuery = params['q'] || '';
+      const page = params['page'] ? parseInt(params['page']) : 1;
+      const sort = params['sort'] || 'newest';
+      
+      // Ripristina lo stato dalla URL
+      this.currentPage = page;
+      this.sortBy = sort;
+      
       if (newQuery !== this.lastQuery) {
         this.lastQuery = newQuery;
         this.performApiCall(this.lastQuery);
+      } else {
+        // Se la query è la stessa, applica solo sort e paginazione
+        this.applySortAndPagination();
       }
     });
   }
@@ -50,9 +60,7 @@ export class SearchComponent implements OnInit {
     });
   }
 
-  // Funzione principale per gestire la logica locale
   applySortAndPagination() {
-    // 1. Ordinamento
     let sorted = [...this.allResults];
     
     switch (this.sortBy) {
@@ -70,11 +78,11 @@ export class SearchComponent implements OnInit {
         break;
     }
 
-    // 2. Calcolo Paginazione
     this.totalPages = Math.ceil(sorted.length / this.pageSize);
-    if (this.currentPage > this.totalPages) this.currentPage = 1;
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = 1;
+    }
 
-    // 3. Taglio dell'array (Slice)
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
     this.pagedResults = sorted.slice(start, end);
@@ -82,17 +90,37 @@ export class SearchComponent implements OnInit {
 
   onSortChange(event: any) {
     this.sortBy = event.target.value;
-    this.currentPage = 1; // Torna alla prima pagina quando cambi ordine
+    this.currentPage = 1;
+    this.updateUrl();
     this.applySortAndPagination();
   }
 
   changePage(page: number) {
     this.currentPage = page;
+    this.updateUrl();
     this.applySortAndPagination();
-    window.scrollTo(0, 0); // Torna su
+    window.scrollTo(0, 0);
+  }
+
+  updateUrl() {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { 
+        q: this.lastQuery,
+        page: this.currentPage,
+        sort: this.sortBy
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 
   onNewSearch(query: string) {
-    this.router.navigate(['/search'], { queryParams: { q: query } });
+    this.router.navigate(['/search'], { 
+      queryParams: { 
+        q: query,
+        page: 1,
+        sort: 'newest'
+      } 
+    });
   }
 }
