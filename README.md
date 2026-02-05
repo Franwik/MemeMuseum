@@ -55,10 +55,7 @@ docker compose up --build
 
 ### 4. Accedere all'Applicazione
 
-Aprire il browser e navigare a:
-```
-http://localhost:4200
-```
+Aprire il browser e navigare a: [http://localhost:4200](http://localhost:4200)
 
 ## Architettura
 
