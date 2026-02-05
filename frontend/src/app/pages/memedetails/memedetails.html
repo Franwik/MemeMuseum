@@ -1,60 +1,60 @@
-<div class="min-h-screen bg-gray-900 text-white p-6">
+<div class="min-h-screen bg-gray-900 text-white p-4 sm:p-6">
   <div class="max-w-4xl mx-auto" *ngIf="meme; else loading">
     
-    <div class="mb-4">
-      <h1 class="text-3xl font-bold">{{ meme.titolo }}</h1>
-      <p class="text-gray-400">Di: <span class="text-blue-400">&#64;{{ meme.autore.username }}</span></p>
+    <div class="mb-4 sm:mb-6">
+      <h1 class="text-2xl sm:text-3xl font-bold mb-2">{{ meme.titolo }}</h1>
+      <p class="text-sm sm:text-base text-gray-400">Di: <span class="text-blue-400">&#64;{{ meme.autore.username }}</span></p>
       
       <!-- Tags -->
       <div *ngIf="meme.tags && meme.tags.length > 0" class="flex flex-wrap gap-2 mt-3">
         <span 
           *ngFor="let tag of meme.tags" 
-          class="px-3 py-1 bg-gray-700 text-gray-300 text-sm rounded-full">
+          class="px-2 sm:px-3 py-1 bg-gray-700 text-gray-300 text-xs sm:text-sm rounded-full">
           #{{ tag }}
         </span>
       </div>
     </div>
 
-    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden mb-8 shadow-2xl">
-      <img [src]="getAttachmentUrl(meme.pathRelativo)" [alt]="meme.titolo" class="w-full h-auto max-h-[600px] object-contain">
+    <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden mb-6 sm:mb-8 shadow-2xl">
+      <img [src]="getAttachmentUrl(meme.pathRelativo)" [alt]="meme.titolo" class="w-full h-auto max-h-[500px] sm:max-h-[600px] object-contain">
       
-      <div class="p-4 bg-gray-800 flex items-center justify-between border-t border-gray-700">
-        <div class="flex items-center space-x-6">
+      <div class="p-3 sm:p-4 bg-gray-800 flex flex-col sm:flex-row items-start sm:items-center justify-between border-t border-gray-700 gap-3">
+        <div class="flex items-center space-x-4 sm:space-x-6">
           <button (click)="onVote(1)" [disabled]="!currentUser"
-            class="flex items-center gap-2 group hover:text-green-500 transition-colors"
+            class="flex items-center gap-1 sm:gap-2 group hover:text-green-500 transition-colors"
             [ngClass]="{'opacity-50 cursor-not-allowed': !currentUser}">
-            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg>
-            <span class="text-xl font-bold text-green-500">{{ meme.upvotes }}</span>
+            <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg>
+            <span class="text-lg sm:text-xl font-bold text-green-500">{{ meme.upvotes }}</span>
           </button>
 
           <button (click)="onVote(-1)" [disabled]="!currentUser"
-            class="flex items-center gap-2 group hover:text-red-500 transition-colors"
+            class="flex items-center gap-1 sm:gap-2 group hover:text-red-500 transition-colors"
             [ngClass]="{'opacity-50 cursor-not-allowed': !currentUser}">
-            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-            <span class="text-xl font-bold text-red-500">{{ meme.downvotes }}</span>
+            <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+            <span class="text-lg sm:text-xl font-bold text-red-500">{{ meme.downvotes }}</span>
           </button>
         </div>
         <p *ngIf="!currentUser" class="text-xs text-gray-500 italic">Effettua il login per votare</p>
       </div>
     </div>
 
-    <div class="mt-10">
-      <h2 class="text-2xl font-bold mb-6 border-b border-gray-700 pb-2">
+    <div class="mt-8 sm:mt-10">
+      <h2 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 border-b border-gray-700 pb-2">
         Commenti 
-        <span class="text-gray-500 text-lg ml-2">({{ comments.length }})</span>
+        <span class="text-gray-500 text-base sm:text-lg ml-2">({{ comments.length }})</span>
       </h2>
 
-      <div *ngIf="currentUser; else loginMsg" class="mb-8">
+      <div *ngIf="currentUser; else loginMsg" class="mb-6 sm:mb-8">
         <textarea [(ngModel)]="newComment" 
           placeholder="Scrivi un commento..."
           [disabled]="isSendingComment"
-          class="w-full bg-gray-800 border border-gray-700 rounded-lg p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+          class="w-full bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none text-sm sm:text-base"
           rows="3"></textarea>
         <div class="flex justify-end mt-2">
           <button 
             (click)="sendComment()" 
             [disabled]="!newComment.trim() || isSendingComment"
-            class="bg-blue-600 px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            class="bg-blue-600 px-4 sm:px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base">
             <span *ngIf="!isSendingComment">Pubblica</span>
             <span *ngIf="isSendingComment">Invio...</span>
           </button>
@@ -62,36 +62,36 @@
       </div>
       
       <ng-template #loginMsg>
-        <p class="bg-gray-800 p-4 rounded-lg text-gray-400 text-center mb-8">
+        <p class="bg-gray-800 p-3 sm:p-4 rounded-lg text-gray-400 text-center mb-6 sm:mb-8 text-sm sm:text-base">
           Accedi per partecipare alla discussione.
         </p>
       </ng-template>
 
       <!-- Loading state per i commenti -->
-      <div *ngIf="isLoadingComments" class="text-center py-8 text-gray-500">
+      <div *ngIf="isLoadingComments" class="text-center py-6 sm:py-8 text-gray-500 text-sm sm:text-base">
         Caricamento commenti...
       </div>
 
       <!-- Lista commenti -->
-      <div *ngIf="!isLoadingComments" class="space-y-4">
-        <div *ngIf="comments.length === 0" class="bg-gray-800 p-8 rounded-lg text-gray-400 text-center">
+      <div *ngIf="!isLoadingComments" class="space-y-3 sm:space-y-4">
+        <div *ngIf="comments.length === 0" class="bg-gray-800 p-6 sm:p-8 rounded-lg text-gray-400 text-center text-sm sm:text-base">
           Nessun commento ancora. Sii il primo a commentare!
         </div>
 
-        <div *ngFor="let c of comments" class="bg-gray-800 p-4 rounded-lg border border-gray-700 hover:border-gray-600 transition">
-          <div class="flex items-center justify-between mb-2">
-            <p class="text-blue-400 font-bold text-sm">
+        <div *ngFor="let c of comments" class="bg-gray-800 p-3 sm:p-4 rounded-lg border border-gray-700 hover:border-gray-600 transition">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
+            <p class="text-blue-400 font-bold text-xs sm:text-sm">
               &#64;{{ c.autore_commento.username || 'Anonimo' }}
             </p>
             <span class="text-xs text-gray-500">{{ formatDate(c.data_creazione) }}</span>
           </div>
-          <p class="text-gray-200">{{ c.testo }}</p>
+          <p class="text-sm sm:text-base text-gray-200 break-words">{{ c.testo }}</p>
         </div>
       </div>
     </div>
   </div>
 
   <ng-template #loading>
-    <div class="text-center py-20 text-gray-500">Caricamento meme...</div>
+    <div class="text-center py-16 sm:py-20 text-gray-500 text-sm sm:text-base">Caricamento meme...</div>
   </ng-template>
 </div>

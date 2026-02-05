@@ -12,6 +12,7 @@ import { Observable } from 'rxjs';
 })
 export class TopbarComponent implements OnInit {
   currentUser$: Observable<User | null>;
+  mobileMenuOpen = false;
 
   constructor(
     private router: Router,
@@ -53,6 +54,11 @@ export class TopbarComponent implements OnInit {
   // Naviga alla pagina con tutti i meme (ricerca senza query)
   onExplore(): void {
     this.router.navigate(['/explore']);
+  }
+
+  // Toggle mobile menu
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
   
 }
