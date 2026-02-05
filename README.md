@@ -1,5 +1,5 @@
 
-# Museo dei Meme
+# Meme Museum
 
 Un'applicazione web per condividere ed esplorare meme con backend Express e frontend Angular.
 
