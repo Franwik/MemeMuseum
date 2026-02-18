@@ -1,4 +1,7 @@
-<div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+<div 
+  class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer hover:ring-2 hover:ring-yellow-500"
+  (click)="navigateToDetails()">
+
   <!-- Badge "Meme del giorno" se isDaily è true -->
   <div *ngIf="isDaily" class="bg-gradient-to-r from-yellow-500 to-orange-500 px-3 sm:px-4 py-2 text-center">
     <span class="text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2">
@@ -10,11 +13,11 @@
   </div>
 
   <!-- Immagine del meme -->
-  <div class="relative aspect-square bg-gray-700">
+  <div class="relative bg-gray-700 flex items-center justify-center" style="min-height: 200px; max-height: 500px;">
     <img 
       [src]="imagePath" 
       [alt]="title"
-      class="w-full h-full object-cover">
+      class="w-full h-auto object-contain max-h-[500px]">
   </div>
 
   <!-- Info del meme -->

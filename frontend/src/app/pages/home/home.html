@@ -19,6 +19,7 @@
       <div class="max-w-2xl mx-auto px-4 sm:px-0">
         <ng-container *ngIf="dailyMeme; else noMeme">
           <app-meme-card
+            [id]="dailyMeme.id"
             [imagePath]="dailyMeme.imagePath"
             [title]="dailyMeme.title"
             [author]="dailyMeme.author"

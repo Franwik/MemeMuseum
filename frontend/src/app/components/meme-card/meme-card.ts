@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-meme-card',
@@ -8,6 +9,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './meme-card.html'
 })
 export class MemeCardComponent {
+  @Input() id: string | number = '';
   @Input() imagePath: string = 'https://via.placeholder.com/400x400?text=Meme';
   @Input() title: string = 'Meme Title';
   @Input() author: string = 'Unknown';
@@ -15,4 +17,12 @@ export class MemeCardComponent {
   @Input() downvotes: number = 0;
   @Input() isDaily: boolean = false;
   @Input() tags: string[] = [];
+
+  constructor(private router: Router) {}
+
+  navigateToDetails(): void {
+    if (this.id) {
+      this.router.navigate(['/details', this.id]);
+    }
+  }
 }
