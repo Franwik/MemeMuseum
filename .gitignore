@@ -197,3 +197,10 @@ frontend/Thumbs.db
 
 # backend .env
 backend/uploads/
+
+# Playwright
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/playwright/.cache/
+frontend/playwright/.auth/
