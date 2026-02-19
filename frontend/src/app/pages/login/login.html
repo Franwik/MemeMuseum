@@ -99,38 +99,13 @@
           </label>
         </div>
 
-        <!-- Error Message -->
-        <div *ngIf="errorMessage" class="mb-5 sm:mb-6 p-3 sm:p-4 bg-red-900/30 border border-red-500 rounded-lg">
-          <p class="text-red-400 text-xs sm:text-sm flex items-center">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-            </svg>
-            {{ errorMessage }}
-          </p>
-        </div>
-
-        <!-- Success Message -->
-        <div *ngIf="successMessage" class="mb-5 sm:mb-6 p-3 sm:p-4 bg-green-900/30 border border-green-500 rounded-lg">
-          <p class="text-green-400 text-xs sm:text-sm flex items-center">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-            {{ successMessage }}
-          </p>
-        </div>
-
         <!-- Submit Button -->
         <button
           type="submit"
-          [disabled]="loginForm.invalid || isLoading"
+          [disabled]="loginForm.invalid"
           class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed text-white font-bold py-2.5 sm:py-3 px-4 rounded-lg transition duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center text-sm sm:text-base"
         >
-          <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span *ngIf="!isLoading">Accedi</span>
-          <span *ngIf="isLoading">Accesso in corso...</span>
+          <span>Accedi</span>
         </button>
       </form>
 

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../_services/auth.service'
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../_services/auth.service';
+import { ToastService } from '../../_services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -13,19 +14,22 @@ import { AuthService } from '../../_services/auth.service'
 
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
-  isLoading = false;
-  errorMessage: string | null = null;
-  successMessage: string | null = null;
   showPassword = false;
+  returnUrl: string = '/';
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService
+    private route: ActivatedRoute,
+    private authService: AuthService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+
+    // Ottieni l'URL di ritorno dai query params (se presente)
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
   private initializeForm(): void {
@@ -47,53 +51,44 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  togglePasswordVisibility(): void {
-    this.showPassword = !this.showPassword;
-  }
-
   onSubmit(): void {
-    // Reset messaggi
-    this.errorMessage = null;
-    this.successMessage = null;
-
-    // Verifica validità form
     if (this.registerForm.invalid) {
       this.markFormGroupTouched(this.registerForm);
       return;
     }
 
-    this.isLoading = true;
-
     const { username, email, password } = this.registerForm.value;
 
     this.authService.register(username, email, password).subscribe({
       next: (response) => {
-        this.isLoading = false;
-        this.successMessage = 'Registrazione completata con successo! Reindirizzamento...';
-        
-        // Reindirizza alla home o alla pagina di login dopo 2 secondi
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 2000);
+        // Feedback di successo tramite Toast
+        this.toastService.success(
+          'Registrazione completata!', 
+          'Il tuo account è stato creato.'
+        );
+
+        // Reindirizzamento all'URL di ritorno o alla home
+        this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
-        this.isLoading = false;
+        // Gestione errori specifica per i Toast
+        let message: string;
         
-        // Gestisci diversi tipi di errore
         if (error.status === 409) {
-          this.errorMessage = 'Username o email già in uso';
+          message = 'Username o email già in uso';
         } else if (error.status === 400) {
-          this.errorMessage = 'Dati non validi. Controlla i campi inseriti';
+          message = 'Dati non validi. Controlla i campi inseriti';
         } else if (error.status === 0) {
-          this.errorMessage = 'Impossibile contattare il server. Riprova più tardi';
+          message = 'Impossibile contattare il server';
         } else {
-          this.errorMessage = error.error?.message || 'Errore durante la registrazione. Riprova';
+          message = error.error?.message || 'Errore durante la registrazione';
         }
+
+        this.toastService.error('Registrazione fallita', message);
       }
     });
   }
 
-  // Metodo helper per marcare tutti i campi come touched (per visualizzare gli errori)
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
       const control = formGroup.get(key);
@@ -105,20 +100,8 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  // Getter per accesso facile ai form controls nel template
-  get username() {
-    return this.registerForm.get('username');
-  }
-
-  get email() {
-    return this.registerForm.get('email');
-  }
-
-  get password() {
-    return this.registerForm.get('password');
-  }
-
-  get confirmPassword() {
-    return this.registerForm.get('confirmPassword');
-  }
+  // Getters
+  get username() { return this.registerForm.get('username'); }
+  get email() { return this.registerForm.get('email'); }
+  get password() { return this.registerForm.get('password'); }
 }

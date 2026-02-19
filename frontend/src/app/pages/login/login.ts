@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../_services/auth.service';
+import { ToastService } from '../../_services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -13,9 +14,6 @@ import { AuthService } from '../../_services/auth.service';
 
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
-  isLoading = false;
-  errorMessage: string | null = null;
-  successMessage: string | null = null;
   showPassword = false;
   returnUrl: string = '/';
 
@@ -23,7 +21,8 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -57,52 +56,47 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // Reset messaggi
-    this.errorMessage = null;
-    this.successMessage = null;
-
     // Verifica validità form
     if (this.loginForm.invalid) {
       this.markFormGroupTouched(this.loginForm);
       return;
     }
 
-    this.isLoading = true;
-
     const { email, password, rememberMe } = this.loginForm.value;
 
     this.authService.login(email, password, rememberMe).subscribe({
       next: (response) => {
-        this.isLoading = false;
-        this.successMessage = 'Login effettuato con successo!';
-        
+
         // Se "Ricordami" è selezionato, salva un flag nel localStorage
         if (rememberMe) {
           localStorage.setItem('rememberMe', 'true');
         } else {
           localStorage.removeItem('rememberMe');
         }
-        
-        // Reindirizza dopo 1 secondo
-        setTimeout(() => {
-          this.router.navigate([this.returnUrl]);
-        }, 1000);
+
+        this.toastService.success('Accesso effettuato', 'Bentornato!');
+
+        // Reindirizzamento all'URL di ritorno o alla home
+        this.router.navigate([this.returnUrl]);
       },
       error: (error) => {
-        this.isLoading = false;
-        
         // Gestisci diversi tipi di errore
+        let message: string;
+
         if (error.status === 401) {
-          this.errorMessage = 'Email o password non corretti';
+          message = 'Email o password non corretti';
+          console.log('Tentativo di login fallito per email:', email);
         } else if (error.status === 404) {
-          this.errorMessage = 'Account non trovato';
+          message = 'Account non trovato';
         } else if (error.status === 403) {
-          this.errorMessage = 'Account disabilitato o non verificato';
+          message = 'Account disabilitato o non verificato';
         } else if (error.status === 0) {
-          this.errorMessage = 'Impossibile contattare il server. Riprova più tardi';
+          message = 'Impossibile contattare il server. Riprova più tardi';
         } else {
-          this.errorMessage = error.error?.message || 'Errore durante l\'accesso. Riprova';
+          message = error.error?.message || 'Errore durante l\'accesso. Riprova';
         }
+
+        this.toastService.error('Accesso fallito', message);
       }
     });
   }

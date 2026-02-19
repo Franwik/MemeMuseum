@@ -36,7 +36,9 @@ export class TopbarComponent implements OnInit {
   }
 
   onRegister(): void {
-    this.router.navigate(['/register']);
+    this.router.navigate(['/register'], { 
+      queryParams: { returnUrl: this.router.url } 
+    });
   }
 
   onLogout(): void {
