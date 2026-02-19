@@ -35,3 +35,60 @@ test.describe('Meme of the day', () => {
   });
 
 });
+
+test.describe('Login', () => {
+
+  test('should allow users to log in', async ({ page }) => {
+    await page.goto('http://localhost:4200');
+
+    // Il bottone di login nella navbar (adatta il selettore alla tua navbar)
+    const loginButton = page.getByRole('button', { name: 'Accedi' })
+    await expect(loginButton).toBeVisible();
+    await loginButton.click();
+
+    await expect(page).toHaveURL(/http:\/\/localhost:4200\/login/);
+
+    const emailInput = page.locator('#email');
+    const passwordInput = page.locator('#password');
+
+    await emailInput.fill('test@mail.com');
+    await passwordInput.fill('testss');
+
+    const submitButton = page.getByRole('main').getByRole('button', { name: 'Accedi' })
+    await submitButton.click();
+
+    const toastContainer = page.locator('app-toast');
+    await expect(toastContainer.locator('[class*="border-green"]')).toBeVisible();
+    await expect(page.getByText('Bentornato!')).toBeVisible();
+  });
+
+  test('should block users from logging in with incorrect credentials', async ({ page }) => {
+    await page.goto('http://localhost:4200');
+
+    // Il bottone di login nella navbar (adatta il selettore alla tua navbar)
+    const loginButton = page.getByRole('button', { name: 'Accedi' })
+    await expect(loginButton).toBeVisible();
+    await loginButton.click();
+
+    await expect(page).toHaveURL(/http:\/\/localhost:4200\/login/);
+
+    const emailInput = page.locator('#email');
+    const passwordInput = page.locator('#password');
+
+    await emailInput.fill('wrong@example.com');
+    await passwordInput.fill('wrongpassword');
+
+    const submitButton = page.getByRole('main').getByRole('button', { name: 'Accedi' })
+    await submitButton.click();
+
+    // Attendi il toast di errore
+    const errorToast = page.locator('app-toast [class*="border-red"]');
+    await expect(errorToast).toBeVisible();
+    await expect(page.getByText('Accesso fallito')).toBeVisible();
+    await expect(page.getByText('Email o password non corretti')).toBeVisible();
+
+    // L'URL non deve cambiare
+    await expect(page).toHaveURL(/http:\/\/localhost:4200\/login/);
+  });
+
+});
