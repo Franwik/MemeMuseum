@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemeService } from '../../_services/meme.service';
 import { AuthService, User } from '../../_services/auth.service';
+import { ToastService } from '../../_services/toast.service';
 
 @Component({
   selector: 'app-create-meme',
@@ -18,8 +19,6 @@ export class CreateMemeComponent implements OnInit {
   tags: string[] = [];
   newTag: string = '';
   isUploading: boolean = false;
-  uploadSuccess: boolean = false;
-  uploadError: string | null = null;
   currentUser: User | null = null;
   existingTags: string[] = [];
   filteredSuggestions: string[] = [];
@@ -27,7 +26,8 @@ export class CreateMemeComponent implements OnInit {
   constructor(
     private memeService: MemeService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -95,20 +95,19 @@ export class CreateMemeComponent implements OnInit {
     const fileExtension = file.name.toLowerCase().split('.').pop();
     const allowedExtensions = ['png', 'jpg', 'jpeg'];
     
-    if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension || '')) {
-      this.uploadError = 'Formato non supportato. Usa solo PNG, JPG o JPEG';
+    if (!allowedTypes.includes(file.type)) {
+      this.toastService.error('Formato non valido', 'Usa solo PNG, JPG o JPEG');
       return;
     }
 
     // Validazione dimensione (10MB max)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 10 * 1024 * 1024; // 10 MB
     if (file.size > maxSize) {
-      this.uploadError = 'Il file è troppo grande. Dimensione massima: 10MB';
+      this.toastService.warning('File troppo grande', 'La dimensione massima consentita è 10MB');
       return;
     }
 
     this.selectedFile = file;
-    this.uploadError = null;
 
     // Crea preview
     const reader = new FileReader();
@@ -149,37 +148,33 @@ export class CreateMemeComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.currentUser || !this.selectedFile || !this.titolo.trim()) {
-      this.uploadError = 'Compila tutti i campi obbligatori';
+      this.toastService.warning('Campi mancanti', 'Per favore, compila tutti i campi obbligatori.');
       return;
     }
 
     this.isUploading = true;
-    this.uploadError = null;
-    this.uploadSuccess = false;
 
-    // Crea FormData
     const formData = new FormData();
     formData.append('immagine', this.selectedFile);
     formData.append('titolo', this.titolo.trim());
     formData.append('id_autore', this.currentUser.id.toString());
     formData.append('tags', JSON.stringify(this.tags));
 
-    // Invia al backend
     this.memeService.uploadMeme(formData).subscribe({
       next: (response) => {
-        console.log('Meme caricato:', response);
         this.isUploading = false;
-        this.uploadSuccess = true;
+        // Feedback di successo tramite Toast
+        this.toastService.success('Successo!', 'Il tuo meme è stato caricato correttamente.');
         
-        // Reindirizza alla home dopo 2 secondi
         setTimeout(() => {
           this.router.navigate(['/home']);
         }, 2000);
       },
       error: (error) => {
-        console.error('Errore upload:', error);
         this.isUploading = false;
-        this.uploadError = error.error?.error || 'Errore durante il caricamento del meme';
+        const errorMsg = error.error?.error || 'Errore durante il caricamento del meme';
+        // Feedback di errore tramite Toast
+        this.toastService.error('Errore Upload', errorMsg);
       }
     });
   }

@@ -26,6 +26,7 @@ export class ToastComponent implements OnInit, OnDestroy {
   copiedIds = new Set<string>();
   private readonly timeouts = new Map<string, ReturnType<typeof setTimeout>>();
   private subscription!: Subscription;
+  scrollY = 0;
 
   constructor(
     private readonly toastService: ToastService,
@@ -34,6 +35,7 @@ export class ToastComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    window.addEventListener('scroll', this.handleScroll, true);
     this.subscription = this.toastService.toasts$.subscribe(toast => {
       this.toasts = [...this.toasts, toast];
       
@@ -85,9 +87,22 @@ export class ToastComponent implements OnInit, OnDestroy {
     return toast.id;
   }
 
+  handleScroll = (): void => {
+    this.scrollY = window.scrollY;
+    this.cdr.detectChanges();
+  };
+
+  getDynamicTop(): string {
+    const topbarHeight = 70;
+    const margin = 16;
+    const dynamicTop = Math.max(margin, topbarHeight - this.scrollY + margin);
+    return `${dynamicTop}px`;
+  }
+
   ngOnDestroy() {
     this.subscription?.unsubscribe();
     this.timeouts.forEach(timeout => clearTimeout(timeout));
     this.timeouts.clear();
+    window.removeEventListener('scroll', this.handleScroll, true);
   }
 }

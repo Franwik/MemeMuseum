@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '../../_services/auth.service';
 import { MemeService, Meme, Commento } from '../../_services/meme.service';
-import { HttpClient } from '@angular/common/http';
+import { ToastService } from '../../_services/toast.service';
 
 @Component({
   selector: 'app-memedetails',
@@ -24,8 +24,8 @@ export class MemeDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private memeService: MemeService,
     private authService: AuthService,
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -66,7 +66,13 @@ export class MemeDetailsComponent implements OnInit {
         this.meme = data;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error("Errore nel caricamento del meme", err)
+      error: (err) => {
+        console.error("Errore nel caricamento del meme", err);
+        this.toastService.error(
+          'Errore nel caricamento del meme',
+          'Riprova più tardi.'
+        );
+      }
     });
   }
 
@@ -77,7 +83,13 @@ export class MemeDetailsComponent implements OnInit {
       next: () => {
         this.loadMeme(this.meme!.id); // Ricarica per aggiornare i voti
       },
-      error: (err) => console.error("Errore nel voto", err)
+      error: (err) => {
+        console.error("Errore nel voto", err);
+        this.toastService.error(
+          'Voto non riuscito', 
+          'Riprova più tardi.'
+        );
+      }
     });
   }
 
@@ -91,6 +103,10 @@ export class MemeDetailsComponent implements OnInit {
       },
       error: (err) => {
         console.error("Errore nel caricamento dei commenti", err);
+        this.toastService.error(
+          'Errore nel caricamento dei commenti',
+          'Riprova più tardi.'
+        );
         this.isLoadingComments = false;
         this.cdr.detectChanges();
       }
@@ -106,7 +122,7 @@ export class MemeDetailsComponent implements OnInit {
 
     this.memeService.postComment(this.currentUser.id, this.meme.id, this.newComment).subscribe({
       next: (response) => {
-        console.log("Commento inviato con successo", response);
+        this.toastService.success('Commento inviato', 'Commento pubblicato con successo.');
         this.newComment = ''; // Resetta il campo
         this.loadComments(this.meme!.id); // Ricarica i commenti
         this.isSendingComment = false;
@@ -114,6 +130,10 @@ export class MemeDetailsComponent implements OnInit {
       },
       error: (err) => {
         console.error("Errore nell'invio del commento", err);
+        this.toastService.error(
+          'Errore nell\'invio del commento',
+          'Si è verificato un problema durante l\'invio del commento. Riprova più tardi.'
+        );
         this.isSendingComment = false;
         this.cdr.detectChanges();
       }
