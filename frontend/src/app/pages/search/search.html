@@ -6,7 +6,7 @@
       Risultati
       <span *ngIf="lastQuery" class="block sm:inline"> per: <span class="text-blue-400">"{{ lastQuery }}"</span></span>
       <span *ngIf="lastDate" class="block sm:inline"> del: <span class="text-blue-400">{{ lastDate | date:'dd/MM/yyyy' }}</span></span>
-      <span class="text-gray-500 text-sm ml-0 sm:ml-2 block sm:inline">({{ allResults.length }} trovati)</span>
+      <span class="text-gray-500 text-sm ml-0 sm:ml-2 block sm:inline" [attr.data-testid]="'results-count'">({{ allResults.length }} trovati)</span>
     </h2>
 
     <div class="flex items-center">
