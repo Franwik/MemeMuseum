@@ -17,10 +17,21 @@ export class MemePreviewComponent {
   @Input() upvotes: number = 0;
   @Input() downvotes: number = 0;
   @Input() tags: string[] = [];
+  @Input() dataCaricamento: string = '';
 
   constructor(private router: Router) {}
 
   goToDetails() {
     this.router.navigate(['/details', this.id]);
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('it-IT', {
+      day: '2-digit',
+      month: 'numeric',
+      year: 'numeric'
+    });
   }
 }

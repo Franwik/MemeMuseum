@@ -7,15 +7,13 @@ export interface Meme {
   id: number;
   titolo: string;
   formato_file: string;
-  autore: {
-    id: number;
-    username: string;
-  };
+  autore: { id: number; username: string; };
   tags: string[];
   pathRelativo: string;
   data_caricamento: string;
   upvotes: number;
   downvotes: number;
+  voto_utente: 1 | -1 | null; // aggiunto
 }
 
 export interface Commento {

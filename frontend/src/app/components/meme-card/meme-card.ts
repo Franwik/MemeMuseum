@@ -17,6 +17,7 @@ export class MemeCardComponent {
   @Input() downvotes: number = 0;
   @Input() isDaily: boolean = false;
   @Input() tags: string[] = [];
+  @Input() dataCaricamento: string = '';
 
   constructor(private router: Router) {}
 
@@ -24,5 +25,15 @@ export class MemeCardComponent {
     if (this.id) {
       this.router.navigate(['/details', this.id]);
     }
+  }
+
+  formatDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('it-IT', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
   }
 }

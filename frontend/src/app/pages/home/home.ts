@@ -16,6 +16,7 @@ interface MemeData {
   downvotes: number;
   isDaily: boolean;
   tags: string[];
+  dataCaricamento: string;
 }
 
 @Component({
@@ -63,7 +64,8 @@ export class HomeComponent implements OnInit {
           upvotes: meme.upvotes,
           downvotes: meme.downvotes,
           isDaily: true,
-          tags: meme.tags || []
+          tags: meme.tags || [],
+          dataCaricamento: meme.data_caricamento
         };
         this.cdr.detectChanges();
       },

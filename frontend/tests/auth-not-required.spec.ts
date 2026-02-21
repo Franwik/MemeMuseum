@@ -28,7 +28,6 @@ test.describe('Meme of the day', () => {
 
       const commentsTitle = page.locator('h2').filter({ hasText: 'Commenti' });
       await expect(commentsTitle).toHaveText(/Commenti/);
-
     }
   });
 
@@ -37,8 +36,6 @@ test.describe('Meme of the day', () => {
 test.describe('Login', () => {
 
   test('should allow users to log in', async ({ page }) => {
-
-    // Il bottone di login nella navbar (adatta il selettore alla tua navbar)
     const loginButton = page.getByRole('button', { name: 'Accedi' })
     await expect(loginButton).toBeVisible();
     await loginButton.click();
@@ -160,7 +157,6 @@ test.describe('Voting', () => {
     const loginMessage = page.getByText('Effettua il login per votare');
     await expect(loginMessage).toBeVisible();
 
-    // Verifica che il campo commento e il bottone di invio NON siano visibili
     const upvoteButton = page.getByTestId('upvoteButton');
     await expect(upvoteButton).toBeVisible();
     await expect(upvoteButton).toBeDisabled();
@@ -206,7 +202,7 @@ test.describe('Voting', () => {
 test.describe('Search', () => {
 
   test('should allow users to search for memes by title, tag or author', async ({ page }) => {
-    const searchQuery = 'a';
+    const searchQuery = 'iron';
     // Scrivi nella barra di ricerca
     const searchInput = page.getByRole('textbox', { name: 'Cerca meme...' });
     await expect(searchInput).toBeVisible();
@@ -258,7 +254,62 @@ test.describe('Search', () => {
   });
 
   test('should allow users to search for memes by date', async ({ page }) => {
-    // cambaire test
+    
+    const searchQuery = '2026-02-18';
+    // Scrivi nella barra di ricerca
+    const searchDateInput = page.locator('input[name="searchDate"]');
+    await expect(searchDateInput).toBeVisible();
+    await searchDateInput.fill(searchQuery);
+    
+    // Clicca sul bottone di ricerca
+    const searchButton = page.getByRole('button', { name: 'Cerca' })
+    await expect(searchButton).toBeVisible();
+    await searchButton.click();
+
+    // Verifica che la navigazione verso /search sia avvenuta con il query param corretto
+    await expect(page).toHaveURL(new RegExp(`http://localhost:4200/search\\?.*q=&date=${searchQuery}`));
+
+    // Aspetta che la pagina carichi i risultati o il messaggio di nessun risultato
+    const firstMemeCard = page.locator('app-meme-preview').first();
+    const noResultsMessage = page.getByText('Nessun meme trovato per questa ricerca.');
+
+    await expect(async () => {
+      const isCardVisible = await firstMemeCard.isVisible();
+      const isNoResultsVisible = await noResultsMessage.isVisible();
+      expect(isCardVisible !== isNoResultsVisible).toBe(true);
+    }).toPass();
+
+    if (await noResultsMessage.isVisible()) {
+      return;
+    }
+
+    // Verifica che TUTTI i meme mostrati contengano la stringa cercata
+    // nei campi visibili: titolo, autore o tag
+    let hasNextPage = false;
+
+    do{
+
+      const cards = page.locator('app-meme-preview');
+
+      for (let i = 0; i < await cards.count(); i++) {
+        const card = cards.nth(i);
+        const cardText = (await card.innerText()).toLowerCase();
+
+        // Estrapola la data dal testo della card (assumendo che sia nel formato DD/MM/YYYY)
+        const dateMatch = cardText.match(/\d{2}\/\d{2}\/\d{4}/);
+        const cardDate = dateMatch ? dateMatch[0] : '';
+        const formattedSearchDate = `${searchQuery.split('-')[2]}/${searchQuery.split('-')[1]}/${searchQuery.split('-')[0]}`;
+        
+        expect(cardDate).toBe(formattedSearchDate);
+      }
+
+      const nextButton = page.getByRole('button', { name: 'Successiva' });
+      hasNextPage = await nextButton.isEnabled();
+      if (hasNextPage) {
+        await nextButton.click();
+      }
+    } while (hasNextPage);
+
   });
 
 });

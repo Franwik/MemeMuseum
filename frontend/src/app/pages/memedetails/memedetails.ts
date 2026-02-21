@@ -140,6 +140,17 @@ export class MemeDetailsComponent implements OnInit {
     });
   }
 
+  // Formatta la data di caricamento del meme (data per esteso)
+  formatUploadDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('it-IT', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
   // Formatta la data del commento in modo leggibile
   formatDate(dateString: string): string {
     const date = new Date(dateString);
@@ -156,7 +167,7 @@ export class MemeDetailsComponent implements OnInit {
     
     return date.toLocaleDateString('it-IT', { 
       day: '2-digit', 
-      month: 'short', 
+      month: 'numeric', 
       year: 'numeric' 
     });
   }

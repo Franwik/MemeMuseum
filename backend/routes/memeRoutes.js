@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { uploadMeme, getDailyMeme, searchMemes, voteMeme, getMemeById, commentMeme, getMemeComments, getAllMemes, getAllTags } from '../controllers/memeController.js'
 import { uploader } from '../data/local/multerStorage/uploader.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { optionalAuth } from '../middleware/optionalAuth.js';
 
 const router = Router();
 
@@ -11,7 +12,7 @@ router.get('/tags', getAllTags);
 router.get('/daily', getDailyMeme);
 router.get('/search', searchMemes);
 router.post('/vote', authMiddleware, voteMeme);
-router.get('/:id', getMemeById);
+router.get('/:id', optionalAuth, getMemeById);
 router.post('/comment', authMiddleware, commentMeme);
 router.get('/comment/:id_meme', getMemeComments);
 

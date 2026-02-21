@@ -293,38 +293,35 @@ export const getMemeById = async (req, res) => {
 
     const meme = await Meme.findByPk(id, {
       include: [
-        {
-          model: Utente,
-          as: 'autore',
-          attributes: ['id', 'username']
-        },
-        {
-          model: Tag,
-          as: 'tags',
-          attributes: ['nome'],
-          through: { attributes: [] }
-        }
+        { model: Utente, as: 'autore', attributes: ['id', 'username'] },
+        { model: Tag, as: 'tags', attributes: ['nome'], through: { attributes: [] } }
       ]
     });
 
-    if (!meme) {
-      return res.status(404).json({ error: 'Meme non trovato' });
+    if (!meme) return res.status(404).json({ error: 'Meme non trovato' });
+
+    // Controlla se l'utente loggato ha già votato
+    let voto_utente = null;
+    if (req.user) {
+      const votoEsistente = await Voto.findOne({
+        where: { id_utente: req.user.id, id_meme: id }
+      });
+      if (votoEsistente) voto_utente = votoEsistente.tipo_voto; // 1 o -1
     }
 
-    // Formattazione coerente con getDailyMeme e searchMemes
     return res.status(200).json({
       id: meme.id,
       titolo: meme.titolo,
       pathRelativo: meme.pathRelativo,
       formato_file: meme.formato_file,
       data_caricamento: meme.data_caricamento,
-      autore: meme.autore ? {
-        id: meme.autore.id,
-        username: meme.autore.username
-      } : { id: null, username: 'Anonimo' },
+      autore: meme.autore
+        ? { id: meme.autore.id, username: meme.autore.username }
+        : { id: null, username: 'Anonimo' },
       upvotes: meme.count_upvotes,
       downvotes: meme.count_downvotes,
-      tags: meme.tags ? meme.tags.map(t => t.nome) : []
+      tags: meme.tags ? meme.tags.map(t => t.nome) : [],
+      voto_utente // null | 1 | -1
     });
 
   } catch (error) {
