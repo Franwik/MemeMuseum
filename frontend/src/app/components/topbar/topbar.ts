@@ -3,12 +3,24 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, User } from '../../_services/auth.service';
 import { Observable } from 'rxjs';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './topbar.html'
+  templateUrl: './topbar.html',
+  animations: [
+    trigger('mobileMenuAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('150ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+      ])
+    ])
+  ]
 })
 export class TopbarComponent implements OnInit {
   currentUser$: Observable<User | null>;
